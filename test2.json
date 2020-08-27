@@ -1,0 +1,41 @@
+{
+    "gameId": 4781546260,
+    "mapId": 11,
+    "gameMode": "CLASSIC",
+    "gameType": "CUSTOM_GAME",
+    "participants": [
+        {
+            "teamId": 100,
+            "spell1Id": 4,
+            "spell2Id": 12,
+            "championId": 63,
+            "profileIconId": 3776,
+            "summonerName": "Klanat",
+            "bot": false,
+            "summonerId": "cneEUq166O-PJXgx0bGW1yRAiP3qFIM6ik-bdD2eb3ThUgc",
+            "gameCustomizationObjects": [],
+            "perks": {
+                "perkIds": [
+                    8010,
+                    8009,
+                    9104,
+                    8014,
+                    8139,
+                    8135,
+                    5008,
+                    5008,
+                    5002
+                ],
+                "perkStyle": 8000,
+                "perkSubStyle": 8100
+            }
+        }
+    ],
+    "observers": {
+        "encryptionKey": "/yv3KrMT7RKUsqM1H9C3RosbCBJjVTxT"
+    },
+    "platformId": "EUW1",
+    "bannedChampions": [],
+    "gameStartTime": 0,
+    "gameLength": 0
+}
