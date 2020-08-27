@@ -1,27 +1,26 @@
+//Load dependencies
 var mkdirp = require("mkdirp");
-const settings = require('./settings.json');
-const download = require('image-downloader')
+const { createCanvas, loadImage } = require('canvas');
+const download = require('image-downloader');
 const fetch = require('node-fetch');
 const fs = require("fs");
 
-var game = require("./test2.json");
+//Create script variable
+const settings = require('./settings.json');
+var game = null;
 var tab_runes = [];
 var tab_champ = [];
 var tab_spell = [];
-
 var version = 0;
-
 var position = 0;
 
-//PSEUDO, CHAMP, SUMM1, SUMM2, PERK1, PERK2, PERK3, PERK4, PERK5, PERK 6
-
-console.log(settings.accountName);
-
+//Uhhhh... I don't know how to explain. positionXMesure and positionYMesure contains where the object start on the picture (from top-left).
+//positionXMesure_Save and positionYMesure_Save contains the same thing, it's just a save to generate the red team.
+//mesureX and mesureY contains the size of the object. mesureX is about the length, and mesureY about the height
 var positionXMesure = {pseudo : 110, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520};
 var positionXMesure_Save = {pseudo : 110,champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520};
 var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245};
 var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245};
-
 const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60};
 const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60};
 
@@ -36,7 +35,7 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
     game = await gameAPI.json();
 
     if(game.gameId == undefined){
-        await console.log("Le joueur n'est pas en partie !")
+        await console.log("This player is not in game !")
         return;
     }
 
@@ -57,21 +56,21 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
         createPerksJSON(jsonPerks);
         createChampJSON(jsonChamp);
         createSpellJSON(jsonSpell);
-        console.log("Début téléchargement Runes");
+        console.log("Starting download of Perks...");
         for(let a=0; a < tab_runes.length; a++){
             await downloadPerk(tab_runes[a]);
         }
-        console.log("Fin téléchargement Runes");
-        console.log("Début téléchargement Champion");
+        console.log("Downloaded Perks !");
+        console.log("Starting download of champions...");
         for(let b=0; b < tab_champ.length; b++){
             await downloadChamp(tab_champ[b]);
         }
-        console.log("Fin téléchargement Champion");
-        console.log("Début téléchargement Spell");
+        console.log("Downloaded champions !");
+        console.log("Starting download of Spell...");
         for(let c=0; c < tab_spell.length; c++){
             await downloadSpell(tab_spell[c]);
         }
-        console.log("Fin téléchargement Spell");
+        console.log("Downloaded Spell !");
         
     } else {
         //Else, just load perks
@@ -95,11 +94,12 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
     });
 
     //Generate Image
-    console.log("Début génération image");
-    genereImage();
-
+    console.log("Starting generate picture...");
+    generateImage();
+    console.log("Picture generate !");
 })();
 
+//Translate perk id to perk object
 function translatePerkz(list_perks){
     translate_perks = [];
     list_perks.forEach(perk => {
@@ -111,6 +111,7 @@ function translatePerkz(list_perks){
     return translate_perks;
 }
 
+//Translate champ id to champ image path
 function translateChamp(id_champ){
     const index = tab_champ.findIndex(champ => champ.id == id_champ);
     let img = '';
@@ -120,6 +121,7 @@ function translateChamp(id_champ){
     return img;
 }
 
+//Translate spell id to spell image path
 function translateSpell(id_spell){
     const index = tab_spell.findIndex(spell => spell.id == id_spell);
     let img = '';
@@ -129,7 +131,7 @@ function translateSpell(id_spell){
     return img;
 }
 
-//Download image from DDragon
+//Download perk image from DDragon
 async function downloadPerk(item){
     const options = {
       url: 'http://ddragon.leagueoflegends.com/cdn/img/'+item.icon,
@@ -141,7 +143,7 @@ async function downloadPerk(item){
     await download.image(options).catch((err) => console.error(err))
 }
 
-//Download image from DDragon
+//Download champion image from DDragon
 async function downloadChamp(item){
     const options = {
       url: 'http://ddragon.leagueoflegends.com/cdn/'+version+'/img/champion/'+item.img,
@@ -153,7 +155,7 @@ async function downloadChamp(item){
     await download.image(options).catch((err) => console.error(err))
 }
 
-//Download image from DDragon
+//Download spell image from DDragon
 async function downloadSpell(item){
     const options = {
       url: 'http://ddragon.leagueoflegends.com/cdn/'+version+'/img/spell/'+item.img,
@@ -165,6 +167,7 @@ async function downloadSpell(item){
     await download.image(options).catch((err) => console.error(err))
 }
 
+//Download and store perk json from DDragon
 async function downloadJSONperks(){
     const requestPerks = await fetch('http://ddragon.leagueoflegends.com/cdn/'+ version +'/data/en_US/runesReforged.json');
     const jsonChamp = await requestPerks.json();
@@ -174,6 +177,7 @@ async function downloadJSONperks(){
     return jsonChamp;
 }
 
+//Download and store champion json from DDragon
 async function downloadJSONchamp(){
     const requestPerks = await fetch('http://ddragon.leagueoflegends.com/cdn/'+ version +'/data/en_US/champion.json');
     const jsonPerks = await requestPerks.json();
@@ -183,6 +187,7 @@ async function downloadJSONchamp(){
     return jsonPerks;
 }
 
+//Download and store spell json from DDragon
 async function downloadJSONspell(){
     const requestPerks = await fetch('http://ddragon.leagueoflegends.com/cdn/'+ version +'/data/en_US/summoner.json');
     const jsonSpell = await requestPerks.json();
@@ -192,7 +197,7 @@ async function downloadJSONspell(){
     return jsonSpell;
 }
 
-//Create the special tab for perks
+//Create a smaller tab for perks
 function createPerksJSON(jsonPerks){
     jsonPerks.forEach(item => {
         tab_runes.push({id : item.id, name : item.name, icon : item.icon})
@@ -204,7 +209,7 @@ function createPerksJSON(jsonPerks){
     })
 }
 
-//Create the special tab for champs
+//Create a smaller tab for champions
 function createChampJSON(jsonChamp){
     jsonChamp = jsonChamp["data"];
     Object.keys(jsonChamp).forEach(function(key) {
@@ -214,7 +219,7 @@ function createChampJSON(jsonChamp){
     });
 }
 
-//Create the special tab for champs
+//Create a smaller tab for spell
 function createSpellJSON(jsonSpell){
     jsonSpell = jsonSpell["data"];
     Object.keys(jsonSpell).forEach(function(key) {
@@ -224,7 +229,7 @@ function createSpellJSON(jsonSpell){
     });
 }
 
-//Verify if FS exist : If not, create it
+//Verify if folder exist for Perk : If not, create it
 async function verifyFSPerk(dest){
     let tab = dest.split("/");
     let str_dest = "";
@@ -234,18 +239,18 @@ async function verifyFSPerk(dest){
     var returnFolder = await mkdirp('data/'+version+'/en_US/'+str_dest, { recursive: true });
 }
 
-//Verify if FS exist : If not, create it
+//Verify if folder exist for Champ : If not, create it
 async function verifyFSChamp(){
     await mkdirp('data/'+version+'/en_US/champion/', { recursive: true });
 }
 
+//Verify if folder exist for Spell : If not, create it
 async function verifyFSSpell(){
     await mkdirp('data/'+version+'/en_US/spell/', { recursive: true });
 }
 
-function genereImage(){
-    const { createCanvas, loadImage } = require('canvas')
-
+//Generate image from data
+function generateImage(){
     const width = 1920
     const height = 1080
 
@@ -260,67 +265,67 @@ function genereImage(){
         context.textBaseline = 'bottom'
         context.fillStyle = '#ffffff'
         
-        //Boucle construction de l'image
+        //Loop to generate picture for each player
         for(let g=0;g<game.participants.length;g++){
             summoner = game.participants[g];
             if (position>4){
                 context.textAlign = 'right';
             }
-            //Pseudo
+            //Username
             context.fillText(summoner.summonerName, positionXMesure.pseudo, positionYMesure.pseudo);
-            console.log("arf1");
+
             //Champ Square
-            await loadImage('./data/10.16.1/en_US/champion/'+summoner.champImg).then(async image => {
+            await loadImage('./data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
                 await context.drawImage(image, positionXMesure.champ, positionYMesure.champ, mesureX.champ, mesureY.champ);
             });
-            console.log("arf");
+
             //Spell 1
-            await loadImage('./data/10.16.1/en_US/spell/'+summoner.spell1Img).then(async image => {
+            await loadImage('./data/'+version+'/en_US/spell/'+summoner.spell1Img).then(async image => {
                 await context.drawImage(image, positionXMesure.spell1, positionYMesure.spell1, mesureX.spell1, mesureY.spell1);
             });
 
             //Spell 2
-            await loadImage('./data/10.16.1/en_US/spell/'+summoner.spell2Img).then(async image => {
+            await loadImage('./data/'+version+'/en_US/spell/'+summoner.spell2Img).then(async image => {
                 await context.drawImage(image, positionXMesure.spell2, positionYMesure.spell2, mesureX.spell2, mesureY.spell2);
             });
             
             //Perk 1
-            await loadImage('./data/10.16.1/en_US/'+summoner.perks.perkIds[0].icon).then(async image => {
+            await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[0].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk1, positionYMesure.perk1, mesureX.perk1, mesureY.perk1);
             });
 
             //Perk 2
-            await loadImage('./data/10.16.1/en_US/'+summoner.perks.perkIds[1].icon).then(async image => {
+            await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[1].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk2, positionYMesure.perk2, mesureX.perk2, mesureY.perk2);
             });
 
             //Perk 3
-            await loadImage('./data/10.16.1/en_US/'+summoner.perks.perkIds[2].icon).then(async image => {
+            await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[2].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk3, positionYMesure.perk3, mesureX.perk3, mesureY.perk3);
             });
 
             //Perk 4
-            await loadImage('./data/10.16.1/en_US/'+summoner.perks.perkIds[3].icon).then(async image => {
+            await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[3].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk4, positionYMesure.perk4, mesureX.perk4, mesureY.perk4);
             });
 
             //Perk 5
-            await loadImage('./data/10.16.1/en_US/'+summoner.perks.perkIds[4].icon).then(async image => {
+            await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[4].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk5, positionYMesure.perk5, mesureX.perk5, mesureY.perk5);
             });
 
             //Perk 6
-            await loadImage('./data/10.16.1/en_US/'+summoner.perks.perkIds[5].icon).then(async image => {
+            await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[5].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk6, positionYMesure.perk6, mesureX.perk6, mesureY.perk6);
                 await updatePosition();
             });
         }
-
         const buffer = canvas.toBuffer('image/png')
-        fs.writeFileSync('./test.png', buffer)
+        fs.writeFileSync('./picture.png', buffer)
     });
 }
 
+//Weird function. It update where object picture have to start (from top-left), depends on the nomber of player
 function updatePosition(){
     position++;
     if (position < 5){
