@@ -19,12 +19,12 @@ console.log(settings);
 //Uhhhh... I don't know how to explain. positionXMesure and positionYMesure contains where the object start on the picture (from top-left).
 //positionXMesure_Save and positionYMesure_Save contains the same thing, it's just a save to generate the red team.
 //mesureX and mesureY contains the size of the object. mesureX is about the length, and mesureY about the height
-var positionXMesure = {pseudo : 110, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 0, team2:0};
-var positionXMesure_Save = {pseudo : 110,champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 0, team2:0};
-var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 0, team2:0};
-var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 0, team2:0};
-const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60, team1: 0, team2:0};
-const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60, team1: 0, team2:0};
+var positionXMesure = {pseudo : 110, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 160, team2:1620};
+var positionXMesure_Save = {pseudo : 110,champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 160, team2:1620};
+var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 12, team2:12};
+var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1:12, team2: 12};
+const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150};
+const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150};
 
 (async () => {
     //Retrieve summoner
@@ -263,11 +263,35 @@ function generateImage(){
     loadImage('./concept/baseline.png').then(async image => {
         context.drawImage(image, 0, 0, 1920, 1080);
 
-        context.font = 'bold 20pt Arial'
+        context.font = 'bold 40pt Serif'
         context.textBaseline = 'bottom'
-        context.textAlign = 'left';
+        context.textAlign = 'center';
         context.fillStyle = '#ffffff'
-        
+        await context.fillText(settings.team1Name, 574, 115);
+        await context.fillText(settings.team2Name, 1350, 115);
+        context.textAlign = 'left';
+        context.font = 'bold 20pt Arial'
+
+        if(settings.logoTeam1 != ""){
+            await loadImage('./logo/'+settings.logoTeam1).then(async image => {
+                await context.drawImage(image, positionXMesure.team1, positionYMesure.team1, mesureX.team1, mesureY.team1);
+            });
+        } else {
+            await loadImage('./logo/defaultBlue.png').then(async image => {
+                await context.drawImage(image, positionXMesure.team1, positionYMesure.team1, mesureX.team1, mesureY.team1);
+            });
+        }
+
+        if(settings.logoTeam2 != ""){
+            await loadImage('./logo/'+settings.logoTeam1).then(async image => {
+                await context.drawImage(image, positionXMesure.team2, positionYMesure.team2, mesureX.team2, mesureY.team2);
+            });
+        } else {
+            await loadImage('./logo/defaultRed.png').then(async image => {
+                await context.drawImage(image, positionXMesure.team2, positionYMesure.team2, mesureX.team2, mesureY.team2);
+            });
+        }
+
         //Loop to generate picture for each player
         for(let g=0;g<game.participants.length;g++){
             summoner = game.participants[g];

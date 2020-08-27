@@ -1,6 +1,8 @@
 {
-    "APIKey" : "RGAPI-12ab6d57-8740-47d6-84cc-621bf2b75632",
-    "accountName" : "cospect",
+    "APIKey" : "",
+    "accountName" : "",
     "team1Name" : "",
-    "team2Name" : ""
+    "team2Name" : "",
+    "logoTeam1": "",
+    "logoTeam2": ""
 }
