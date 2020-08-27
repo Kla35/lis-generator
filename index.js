@@ -7,22 +7,24 @@ const fs = require("fs");
 
 //Create script variable
 const settings = require('./settings.json');
+defaultSettings();
 var game = null;
 var tab_runes = [];
 var tab_champ = [];
 var tab_spell = [];
 var version = 0;
 var position = 0;
+console.log(settings);
 
 //Uhhhh... I don't know how to explain. positionXMesure and positionYMesure contains where the object start on the picture (from top-left).
 //positionXMesure_Save and positionYMesure_Save contains the same thing, it's just a save to generate the red team.
 //mesureX and mesureY contains the size of the object. mesureX is about the length, and mesureY about the height
-var positionXMesure = {pseudo : 110, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520};
-var positionXMesure_Save = {pseudo : 110,champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520};
-var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245};
-var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245};
-const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60};
-const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60};
+var positionXMesure = {pseudo : 110, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 0, team2:0};
+var positionXMesure_Save = {pseudo : 110,champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 0, team2:0};
+var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 0, team2:0};
+var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 0, team2:0};
+const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60, team1: 0, team2:0};
+const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60,perk5:60,perk6:60, team1: 0, team2:0};
 
 (async () => {
     //Retrieve summoner
@@ -260,9 +262,10 @@ function generateImage(){
     //Base
     loadImage('./concept/baseline.png').then(async image => {
         context.drawImage(image, 0, 0, 1920, 1080);
+
         context.font = 'bold 20pt Arial'
-        context.textAlign = 'left'
         context.textBaseline = 'bottom'
+        context.textAlign = 'left';
         context.fillStyle = '#ffffff'
         
         //Loop to generate picture for each player
@@ -272,8 +275,8 @@ function generateImage(){
                 context.textAlign = 'right';
             }
             //Username
-            context.fillText(summoner.summonerName, positionXMesure.pseudo, positionYMesure.pseudo);
-
+            await context.fillText(summoner.summonerName, positionXMesure.pseudo, positionYMesure.pseudo);
+            
             //Champ Square
             await loadImage('./data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
                 await context.drawImage(image, positionXMesure.champ, positionYMesure.champ, mesureX.champ, mesureY.champ);
@@ -368,4 +371,11 @@ function updatePosition(){
     // console.log(positionYMesure);
 }
 
-
+function defaultSettings(){
+    if (settings.team1Name == ""){
+        settings.team1Name = "Blue Side";
+    }
+    if (settings.team2Name == ""){
+        settings.team2Name = "Red Side";
+    }
+}
