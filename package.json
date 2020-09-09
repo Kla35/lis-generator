@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Kla35/lol-runes-pregame#readme",
   "dependencies": {
     "canvas": "^2.6.1",
+    "cli-progress": "^3.8.2",
     "fs": "0.0.1-security",
     "image-downloader": "^4.0.1",
     "mkdirp": "^1.0.4",

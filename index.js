@@ -1,5 +1,6 @@
 //Load dependencies
 var mkdirp = require("mkdirp");
+const cliProgress = require('cli-progress');
 const { createCanvas, loadImage } = require('canvas');
 const download = require('image-downloader');
 const fetch = require('node-fetch');
@@ -49,7 +50,7 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
 
     //Create folder (if new version)
     var returnFolder = await mkdirp('data/'+version+'/en_US/', { recursive: true });
-
+    console.log(returnFolder);
     //If new version, download perks json and perks images
     if ( typeof returnFolder !== 'undefined'){
         var jsonPerks = await downloadJSONperks();
@@ -59,19 +60,56 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
         createChampJSON(jsonChamp);
         createSpellJSON(jsonSpell);
         console.log("Starting download of Perks...");
+        const b1 = new cliProgress.SingleBar({
+            format: 'Progress |' + '{bar}' + '| {percentage}% || {value}/{total} pictures',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            hideCursor: true
+        });
+        b1.start(tab_runes.length, 0, {
+            speed: "N/A"
+        });
+
         for(let a=0; a < tab_runes.length; a++){
             await downloadPerk(tab_runes[a]);
+            await b1.increment();
         }
+        b1.stop();
         console.log("Downloaded Perks !");
+
         console.log("Starting download of champions...");
+        const b2 = new cliProgress.SingleBar({
+            format: 'Progress |' + '{bar}' + '| {percentage}% || {value}/{total} pictures',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            hideCursor: true
+        });
+        b2.start(tab_champ.length, 0, {
+            speed: "N/A"
+        });
+        
         for(let b=0; b < tab_champ.length; b++){
             await downloadChamp(tab_champ[b]);
+            await b2.increment();
         }
+        b2.stop();
         console.log("Downloaded champions !");
+
         console.log("Starting download of Spell...");
+        const b3 = new cliProgress.SingleBar({
+            format: 'Progress |' + '{bar}' + '| {percentage}% || {value}/{total} pictures',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            hideCursor: true
+        });
+        b3.start(tab_spell.length, 0, {
+            speed: "N/A"
+        });
         for(let c=0; c < tab_spell.length; c++){
             await downloadSpell(tab_spell[c]);
+            b3.increment();
         }
+        b3.stop();
         console.log("Downloaded Spell !");
         
     } else {
