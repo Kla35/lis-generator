@@ -15,13 +15,14 @@ var tab_champ = [];
 var tab_spell = [];
 var version = 0;
 var position = 0;
+var nbplayer_blueside = 0;
 console.log(settings);
 
 //Uhhhh... I don't know how to explain. positionXMesure and positionYMesure contains where the object start on the picture (from top-left).
 //positionXMesure_Save and positionYMesure_Save contains the same thing, it's just a save to generate the red team.
 //mesureX and mesureY contains the size of the object. mesureX is about the length, and mesureY about the height
-var positionXMesure = {pseudo : 110, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 160, team2:1620};
-var positionXMesure_Save = {pseudo : 110,champ : 274, spell1:302, spell2:344,perk1:417, perk2: 520, perk3: 633, perk4: 746,perk5:426,perk6:520, team1: 160, team2:1620};
+var positionXMesure = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 160, team2:1620};
+var positionXMesure_Save = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 160, team2:1620};
 var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 12, team2:12};
 var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1:12, team2: 12};
 const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150};
@@ -40,6 +41,14 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
     if(game.gameId == undefined){
         await console.log("This player is not in game !")
         return;
+    } else {
+        game.participants.forEach(p => {
+            if(p.teamId == 100){
+                nbplayer_blueside++;
+            }
+        });
+        console.log(nbplayer_blueside);
+        // 
     }
 
     //Retrieve actual version
@@ -333,12 +342,18 @@ function generateImage(){
         //Loop to generate picture for each player
         for(let g=0;g<game.participants.length;g++){
             summoner = game.participants[g];
-            if (position>4){
+            if (position>nbplayer_blueside-1){
                 context.textAlign = 'right';
             }
             //Username
+            if(summoner.summonerName.length > 12){
+                context.font = 'bold 15pt Arial';
+            }
             await context.fillText(summoner.summonerName, positionXMesure.pseudo, positionYMesure.pseudo);
-            
+
+            if(summoner.summonerName.length > 12){
+                context.font = 'bold 20pt Arial';
+            }
             //Champ Square
             await loadImage('./data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
                 await context.drawImage(image, positionXMesure.champ, positionYMesure.champ, mesureX.champ, mesureY.champ);
@@ -393,7 +408,7 @@ function generateImage(){
 //Weird function. It update where object picture have to start (from top-left), depends on the nomber of player
 function updatePosition(){
     position++;
-    if (position < 5){
+    if (position < nbplayer_blueside){
         positionYMesure.pseudo = positionYMesure.pseudo + 162;
         positionYMesure.champ = positionYMesure.champ + 162;
         positionYMesure.spell1 = positionYMesure.spell1 + 162;
@@ -404,18 +419,18 @@ function updatePosition(){
         positionYMesure.perk4 = positionYMesure.perk4 + 162;
         positionYMesure.perk5 = positionYMesure.perk5 + 162;
         positionYMesure.perk6 = positionYMesure.perk6 + 162;
-    } else if (position == 5) {
+    } else if (position == nbplayer_blueside) {
         positionYMesure = positionYMesure_Save;
-        positionXMesure.pseudo = positionXMesure.pseudo + 1700;
+        positionXMesure.pseudo = positionXMesure.pseudo + 1730;
         positionXMesure.champ = positionXMesure.champ + 1267;
         positionXMesure.spell1 = positionXMesure.spell1 + 1239;
         positionXMesure.spell2 = positionXMesure.spell2 + 1239;
-        positionXMesure.perk1 = positionXMesure.perk1 + 698;
-        positionXMesure.perk2 = positionXMesure.perk2 + 698;
-        positionXMesure.perk3 = positionXMesure.perk3 + 698;
-        positionXMesure.perk4 = positionXMesure.perk4 + 698;
-        positionXMesure.perk5 = positionXMesure.perk5 + 698;
-        positionXMesure.perk6 = positionXMesure.perk6 + 698;
+        positionXMesure.perk1 = positionXMesure.perk1 + 680;
+        positionXMesure.perk2 = positionXMesure.perk2 + 680;
+        positionXMesure.perk3 = positionXMesure.perk3 + 680;
+        positionXMesure.perk4 = positionXMesure.perk4 + 680;
+        positionXMesure.perk5 = positionXMesure.perk5 + 680;
+        positionXMesure.perk6 = positionXMesure.perk6 + 680;
     } else {
         positionYMesure.pseudo = positionYMesure.pseudo + 162;
         positionYMesure.champ = positionYMesure.champ + 162;
