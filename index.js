@@ -349,6 +349,10 @@ function generateImage(){
             if(summoner.summonerName.length > 12){
                 context.font = 'bold 15pt Arial';
             }
+
+            if(summoner.summonerName.length > 20){
+                summoner.summonerName = summoner.summonerName.substring(0,18) + "..."
+            }
             await context.fillText(summoner.summonerName, positionXMesure.pseudo, positionYMesure.pseudo);
 
             if(summoner.summonerName.length > 12){
