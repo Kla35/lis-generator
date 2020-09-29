@@ -30,12 +30,12 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
 
 (async () => {
     //Retrieve summoner
-    const playerAPI = await fetch("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
+    const playerAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
     const jsonPlayer = await playerAPI.json();
     const SummonerId = jsonPlayer["id"];
 
     //Retrieve game
-    const gameAPI = await fetch("https://euw1.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
+    const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
     game = await gameAPI.json();
 
     if(game.gameId == undefined){

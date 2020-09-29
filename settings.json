@@ -1,6 +1,7 @@
 {
     "APIKey" : "",
     "accountName" : "",
+    "server": "euw1",
     "team1Name" : "",
     "team2Name" : "",
     "logoTeam1": "",
