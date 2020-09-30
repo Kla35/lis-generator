@@ -32,11 +32,13 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
     //Retrieve summoner
     const playerAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
     const jsonPlayer = await playerAPI.json();
+    //console.log(jsonPlayer);
     const SummonerId = jsonPlayer["id"];
 
     //Retrieve game
     const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
     game = await gameAPI.json();
+    //console.log(game);
 
     if(game.gameId == undefined){
         await console.log("This player is not in game !")
@@ -342,6 +344,7 @@ function generateImage(){
         //Loop to generate picture for each player
         for(let g=0;g<game.participants.length;g++){
             summoner = game.participants[g];
+            //console.log(summoner);
             if (position>nbplayer_blueside-1){
                 context.textAlign = 'right';
             }
@@ -359,8 +362,14 @@ function generateImage(){
                 context.font = 'bold 20pt Arial';
             }
             //Champ Square
+            await loadImage('./default/champ_default.png').then(async image => {
+                await context.drawImage(image, positionXMesure.champ, positionYMesure.champ, mesureX.champ, mesureY.champ);
+            });
+
             await loadImage('./data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
                 await context.drawImage(image, positionXMesure.champ, positionYMesure.champ, mesureX.champ, mesureY.champ);
+            }).catch(async error => {
+                console.log("Image of a champ not find : " + summoner.champImg);
             });
 
             //Spell 1
@@ -458,5 +467,8 @@ function defaultSettings(){
     }
     if (settings.team2Name == ""){
         settings.team2Name = "Red Side";
+    }
+    if (settings.server == ""){
+        settings.server = "euw1";
     }
 }
