@@ -21,12 +21,12 @@ console.log(settings);
 //Uhhhh... I don't know how to explain. positionXMesure and positionYMesure contains where the object start on the picture (from top-left).
 //positionXMesure_Save and positionYMesure_Save contains the same thing, it's just a save to generate the red team.
 //mesureX and mesureY contains the size of the object. mesureX is about the length, and mesureY about the height
-var positionXMesure = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 160, team2:1620};
-var positionXMesure_Save = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 160, team2:1620};
-var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 12, team2:12};
-var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1:12, team2: 12};
-const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150};
-const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150};
+var positionXMesure = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 160, team2:1620, ban :231};
+var positionXMesure_Save = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 160, team2:1620, ban :231};
+var positionYMesure = {pseudo : 315, champ : 162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1: 12, team2:12, ban :986};
+var positionYMesure_Save = {pseudo : 315, champ :162, spell1:274, spell2:274,perk1:162, perk2: 168, perk3: 168, perk4: 168,perk5:245,perk6:245, team1:12, team2: 12, ban :986};
+const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150, ban :69};
+const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150, ban :69};
 
 (async () => {
     //Retrieve summoner
@@ -144,6 +144,17 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
         //console.log(summoner.perks);
     });
 
+    game.banned_array_blue = [];
+    game.banned_array_red = [];
+
+    game.bannedChampions.forEach(banned => {
+        if(banned.teamId == 100){
+            game.banned_array_blue.push(translateChamp(banned.championId));
+        } else {
+            game.banned_array_red.push(translateChamp(banned.championId));
+        }
+    })
+
     //Generate Image
     console.log("Starting generate picture...");
     generateImage();
@@ -168,6 +179,8 @@ function translateChamp(id_champ){
     let img = '';
     if (index != -1){
         img = tab_champ[index].img;
+    } else {
+        img = ''
     }
     return img;
 }
@@ -413,6 +426,49 @@ function generateImage(){
                 await updatePosition();
             });
         }
+
+        //Add blue bans
+        link = '';
+        for(let k=0; k<game.banned_array_blue.length;k++){
+            if(game.banned_array_blue[k] == ''){
+                link = 'concept/no_ban.png';
+            } else {
+                link = './data/'+version+'/en_US/champion/'+game.banned_array_blue[k];
+            }
+            await loadImage(link).then(async image => {
+                await context.drawImage(image, positionXMesure.ban, positionYMesure.ban, mesureX.ban, mesureY.ban);
+            }).catch(async error => {
+                console.log("Image of a champ not find : " + game.banned_array_blue[k]);
+            });
+
+            await loadImage('./concept/ban_champ.png').then(async image => {
+                await context.drawImage(image, positionXMesure.ban, positionYMesure.ban, mesureX.ban, mesureY.ban);
+            });
+            positionXMesure.ban = positionXMesure.ban + 109;
+        }
+
+        //Change position of ban image
+        positionXMesure.ban = 1185;
+
+        //Add red bans
+        for(let k=0; k<game.banned_array_red.length;k++){
+            if(game.banned_array_red[k] == ''){
+                link = 'concept/no_ban.png';
+            } else {
+                link = './data/'+version+'/en_US/champion/'+game.banned_array_red[k];
+            }
+            await loadImage(link).then(async image => {
+                await context.drawImage(image, positionXMesure.ban, positionYMesure.ban, mesureX.ban, mesureY.ban);
+            }).catch(async error => {
+                console.log("Image of a champ not find : " + game.banned_array_red[k]);
+            });
+
+            await loadImage('./concept/ban_champ.png').then(async image => {
+                await context.drawImage(image, positionXMesure.ban, positionYMesure.ban, mesureX.ban, mesureY.ban);
+            });
+            positionXMesure.ban = positionXMesure.ban + 109;
+        }
+
         const buffer = canvas.toBuffer('image/png')
         fs.writeFileSync('./picture.png', buffer)
     });
