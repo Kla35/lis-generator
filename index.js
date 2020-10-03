@@ -320,9 +320,12 @@ function generateImage(){
 
     const canvas = createCanvas(width, height)
     const context = canvas.getContext('2d')
-   
+    baseline_link = './concept/baseline.png';
+    if(game.gameType == "CUSTOM_GAME"){
+        baseline_link = './concept/baseline_draft.png'
+    }
     //Base
-    loadImage('./concept/baseline.png').then(async image => {
+    loadImage(baseline_link).then(async image => {
         context.drawImage(image, 0, 0, 1920, 1080);
 
         context.font = 'bold 40pt Serif'
