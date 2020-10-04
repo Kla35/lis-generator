@@ -359,9 +359,10 @@ function generateImage(){
 
         //Loop to generate picture for each player
         for(let g=0;g<game.participants.length;g++){
+            await updatePosition();
             summoner = game.participants[g];
             //console.log(summoner);
-            if (position>nbplayer_blueside-1){
+            if (position>nbplayer_blueside){
                 context.textAlign = 'right';
             }
             //Username
@@ -426,7 +427,6 @@ function generateImage(){
             //Perk 6
             await loadImage('./data/'+version+'/en_US/'+summoner.perks.perkIds[5].icon).then(async image => {
                 await context.drawImage(image, positionXMesure.perk6, positionYMesure.perk6, mesureX.perk6, mesureY.perk6);
-                await updatePosition();
             });
         }
 
@@ -479,19 +479,7 @@ function generateImage(){
 
 //Weird function. It update where object picture have to start (from top-left), depends on the nomber of player
 function updatePosition(){
-    position++;
-    if (position < nbplayer_blueside){
-        positionYMesure.pseudo = positionYMesure.pseudo + 162;
-        positionYMesure.champ = positionYMesure.champ + 162;
-        positionYMesure.spell1 = positionYMesure.spell1 + 162;
-        positionYMesure.spell2 = positionYMesure.spell2 + 162;
-        positionYMesure.perk1 = positionYMesure.perk1 + 162;
-        positionYMesure.perk2 = positionYMesure.perk2 + 162;
-        positionYMesure.perk3 = positionYMesure.perk3 + 162;
-        positionYMesure.perk4 = positionYMesure.perk4 + 162;
-        positionYMesure.perk5 = positionYMesure.perk5 + 162;
-        positionYMesure.perk6 = positionYMesure.perk6 + 162;
-    } else if (position == nbplayer_blueside) {
+    if (position == nbplayer_blueside){
         positionYMesure = positionYMesure_Save;
         positionXMesure.pseudo = positionXMesure.pseudo + 1730;
         positionXMesure.champ = positionXMesure.champ + 1267;
@@ -503,6 +491,19 @@ function updatePosition(){
         positionXMesure.perk4 = positionXMesure.perk4 + 680;
         positionXMesure.perk5 = positionXMesure.perk5 + 680;
         positionXMesure.perk6 = positionXMesure.perk6 + 680;
+    } else if (position == 0){
+        console.log("Root 0");
+    } else if (position < nbplayer_blueside) {
+        positionYMesure.pseudo = positionYMesure.pseudo + 162;
+        positionYMesure.champ = positionYMesure.champ + 162;
+        positionYMesure.spell1 = positionYMesure.spell1 + 162;
+        positionYMesure.spell2 = positionYMesure.spell2 + 162;
+        positionYMesure.perk1 = positionYMesure.perk1 + 162;
+        positionYMesure.perk2 = positionYMesure.perk2 + 162;
+        positionYMesure.perk3 = positionYMesure.perk3 + 162;
+        positionYMesure.perk4 = positionYMesure.perk4 + 162;
+        positionYMesure.perk5 = positionYMesure.perk5 + 162;
+        positionYMesure.perk6 = positionYMesure.perk6 + 162;
     } else {
         positionYMesure.pseudo = positionYMesure.pseudo + 162;
         positionYMesure.champ = positionYMesure.champ + 162;
@@ -515,9 +516,11 @@ function updatePosition(){
         positionYMesure.perk5 = positionYMesure.perk5 + 162;
         positionYMesure.perk6 = positionYMesure.perk6 + 162;
     }
+    position++;
     // console.log(position);
     // console.log(positionXMesure);
     // console.log(positionYMesure);
+    
 }
 
 function defaultSettings(){
