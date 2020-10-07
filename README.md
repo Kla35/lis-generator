@@ -20,4 +20,8 @@ If the player is not a game, it just stop the software without creating a pictur
 
 Example :
 ---
+Draft & Ranked Game picture example :
 ![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/picture_example.png)
+
+Custom game if there is 10 players in the game picture example :
+![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/picture_example2.png)
