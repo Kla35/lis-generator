@@ -29,19 +29,23 @@ const mesureX = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
 const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 60, perk3: 60, perk4: 60, perk5:60 ,perk6:60, team1: 150, team2: 150, ban :69};
 
 (async () => {
-    //Retrieve summoner
-    const playerAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
-    const jsonPlayer = await playerAPI.json();
-    //console.log(jsonPlayer);
-    const SummonerId = jsonPlayer["id"];
-
-    //Retrieve game
-    const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
-    game = await gameAPI.json();
+    game = null;
+    //************Retrieve summoner and game*****************
+    if(settings.accountName != ""){
+        const playerAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
+        const jsonPlayer = await playerAPI.json();
+        const SummonerId = jsonPlayer["id"];
+        const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
+        game = await gameAPI.json();
+    } else if (settings.matchId != ""){
+        const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/match/v4/matches/"+settings.matchId+"?api_key="+settings.APIKey);
+        game = await gameAPI.json();
+    }
     //console.log(game);
 
+    //Check if player is now in game (Expect in coop vs IA). If yes, push the number of blue player
     if(game.gameId == undefined){
-        await console.log("This player is not in game !")
+        console.log("This player is not in game / This game don't exist !")
         return;
     } else {
         game.participants.forEach(p => {
@@ -49,17 +53,23 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
                 nbplayer_blueside++;
             }
         });
-        console.log(nbplayer_blueside);
-        // 
+        //console.log(nbplayer_blueside);
     }
 
-    //Retrieve actual version
-	const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
-    const jsonVersion = await requestVersion.json();
-    
-    version = jsonVersion[0];
+    //*************Retrieve actual version or old version (depends if the match is now or played)*****************
+    version = null;
+    if (settings.accountName != ""){
+        const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+        const jsonVersion = await requestVersion.json();
+        version = jsonVersion[0];
+    } else if (settings.matchId != ""){
+        splitVersion = game.gameVersion.split(".");
+        version = splitVersion[0]+"."+splitVersion[1]+".1";
+    }
+	
+    //console.log(version);
 
-    //Create folder (if new version)
+    //**************Create folder (if new version)*************
     var returnFolder = await mkdirp('data/'+version+'/en_US/', { recursive: true });
     console.log(returnFolder);
     //If new version, download perks json and perks images
@@ -133,9 +143,19 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
         createSpellJSON(jsonSpell);
     }
 
-    //Convert id runes to object perk
     game.participants.forEach(summoner => {
-        list_perks = summoner.perks.perkIds;
+        list_perks = [];
+        if(settings.accountName != ""){
+            list_perks = summoner.perks.perkIds;
+        } else if (settings.matchId != ""){
+            summoner.perks = {};
+            summoner.summonerName = game.participantIdentities[summoner.participantId-1].player.summonerName;
+            tab_str_perks = ["perk0","perk1","perk2","perk3","perk4","perk5"];
+            tab_str_perks.forEach(item =>{
+                list_perks.push(summoner.stats[item]);
+            })
+        }
+        console.log(list_perks);
         summoner.perks.perkIds = translatePerkz(list_perks);
         summoner.champImg = translateChamp(summoner.championId);
         summoner.spell1Img = translateSpell(summoner.spell1Id);
@@ -144,16 +164,8 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
         //console.log(summoner.perks);
     });
 
-    game.banned_array_blue = [];
-    game.banned_array_red = [];
-
-    game.bannedChampions.forEach(banned => {
-        if(banned.teamId == 100){
-            game.banned_array_blue.push(translateChamp(banned.championId));
-        } else {
-            game.banned_array_red.push(translateChamp(banned.championId));
-        }
-    })
+    game.banned_array_blue = generateBanBlue(game);
+    game.banned_array_red = generateBanRed(game);
 
     //Generate Image
     console.log("Starting generate picture...");
@@ -162,6 +174,47 @@ const mesureY = {pseudo : 0, champ : 105, spell1:35, spell2:35,perk1:79, perk2: 
 })();
 
 //Translate perk id to perk object
+
+function generateBanBlue(game){
+    tab = [];
+    if(settings.accountName != ""){
+        game.bannedChampions.forEach(banned => {
+            if(banned.teamId == 100){
+                tab.push(translateChamp(banned.championId));
+            }
+        })
+    } else if (settings.matchId != ""){
+        game.teams.forEach(item =>{
+            if (item.teamId == 100){
+                item.bans.forEach(ban =>{
+                    tab.push(translateChamp(ban.championId));
+                })
+            }
+        })
+    }
+    return tab;
+    
+}
+
+function generateBanRed(game){
+    tab = [];
+    if(settings.accountName != ""){
+        game.bannedChampions.forEach(banned => {
+            if(banned.teamId == 200){
+                tab.push(translateChamp(banned.championId));
+            }
+        })
+    } else if (settings.matchId != ""){
+        game.teams.forEach(item =>{
+            if (item.teamId == 200){
+                item.bans.forEach(ban =>{
+                    tab.push(translateChamp(ban.championId));
+                })
+            }
+        })
+    }
+    return tab;
+}
 function translatePerkz(list_perks){
     translate_perks = [];
     list_perks.forEach(perk => {
