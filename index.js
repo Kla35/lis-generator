@@ -374,7 +374,7 @@ function generateImage(){
     const canvas = createCanvas(width, height)
     const context = canvas.getContext('2d')
     baseline_link = './concept/baseline.png';
-    if(game.gameType == "CUSTOM_GAME"){
+    if((game.gameType == "CUSTOM_GAME") && (game.participants.length == 10)){
         baseline_link = './concept/baseline_draft.png'
     }
     //Base
