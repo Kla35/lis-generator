@@ -3,3 +3,6 @@ picture.png
 dev_idea.txt
 test.js
 test.json
+/node_modules/
+/enhancement/
+broswer.js

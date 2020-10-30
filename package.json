@@ -22,6 +22,7 @@
     "fs": "0.0.1-security",
     "image-downloader": "^4.0.1",
     "mkdirp": "^1.0.4",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.1",
+    "nw": "^0.49.0"
   }
 }
