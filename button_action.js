@@ -3,15 +3,20 @@ button = document.getElementById("button");
 username_input = document.getElementById("username");
 apikey_input = document.getElementById("apikey");
 matchid_input = document.getElementById("matchid");
+eta_div = document.getElementById("etatdiv")
 eta_text = document.getElementById("etatext");
+subProgressBar = document.getElementById("myProgress");
+progressBar = document.getElementById("myBar");
+matchid_input.value = "5003935577";
+apikey_input.value = "RGAPI-aff8fe37-d6cd-46af-9312-e36bc6065baf";
 console.log(button);
 console.log(eta_text);
 
 button.addEventListener("click", function(){
-    eta_text.classList.remove("hidden");
-    eta_text.innerHTML = "Reset data";
+    eta_div.classList.remove("hidden");
+    changeETA("Reset du programme");
     resetData();
-    eta_text.innerHTML = "Ajust settings";
+    changeETA("Ajout des valeurs")
     settings.accountName = username_input.value;
     settings.APIKey = apikey_input.value;
     settings.matchId = matchid_input.value;
@@ -28,7 +33,7 @@ button.addEventListener("click", function(){
         (async () => {
             game = null;
             timeline = null;
-            eta_text.innerHTML = "Recherche de la game";
+            changeETA("Recherche de la game...")
             //************Retrieve summoner and game*****************
             if(settings.accountName != ""){
                 const playerAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
@@ -56,7 +61,7 @@ button.addEventListener("click", function(){
             await initPlayersTeam();
         
             //console.log(game);
-            eta_text.innerHTML = "Player ING ?";
+            changeETA("Vérification de l'existance de la partie")
             //Check if player is now in game (Expect in coop vs IA). If yes, push the number of blue player
             if(game.gameId == undefined){
                 console.log("This player is not in game / This game don't exist !")
@@ -69,7 +74,7 @@ button.addEventListener("click", function(){
                 });
                 //console.log(nbplayer_blueside);
             }
-            eta_text.innerHTML = "Version ?";
+            changeETA("Verification de la version...")
             //*************Retrieve actual version or old version (depends if the match is now or played)*****************
             version = null;
             if (settings.accountName != ""){
@@ -95,57 +100,40 @@ button.addEventListener("click", function(){
                 createChampJSON(jsonChamp);
                 createSpellJSON(jsonSpell);
                 console.log("Starting download of Perks...");
-                const b1 = new cliProgress.SingleBar({
-                    format: 'Progress |' + '{bar}' + '| {percentage}% || {value}/{total} pictures',
-                    barCompleteChar: '\u2588',
-                    barIncompleteChar: '\u2591',
-                    hideCursor: true
-                });
-                b1.start(tab_runes.length, 0, {
-                    speed: "N/A"
-                });
+                changeETA("Téléchargement de la version de la partie : Téléchargement des runes")
+                subProgressBar.classList.remove("hidden");
         
                 for(let a=0; a < tab_runes.length; a++){
                     await downloadPerk(tab_runes[a]);
-                    await b1.increment();
+                    progressBar.style.width = ((a/tab_runes.length)*100) + "%";
+                    progressBar.innerHTML = ((a/tab_runes.length)*100).toFixed(2) + "%";
                 }
-                b1.stop();
+                resetProgressBar();
+                // b1.stop();
                 console.log("Downloaded Perks !");
         
                 console.log("Starting download of champions...");
-                const b2 = new cliProgress.SingleBar({
-                    format: 'Progress |' + '{bar}' + '| {percentage}% || {value}/{total} pictures',
-                    barCompleteChar: '\u2588',
-                    barIncompleteChar: '\u2591',
-                    hideCursor: true
-                });
-                b2.start(tab_champ.length, 0, {
-                    speed: "N/A"
-                });
+                changeETA("Téléchargement de la version de la partie : Téléchargement des champions")
+                subProgressBar.classList.remove("hidden");
                 
                 for(let b=0; b < tab_champ.length; b++){
                     await downloadChamp(tab_champ[b]);
-                    await b2.increment();
+                    progressBar.style.width = ((b/tab_champ.length)*100) + "%";
+                    progressBar.innerHTML = ((b/tab_champ.length)*100).toFixed(2) + "%";
                 }
-                b2.stop();
+                resetProgressBar();
                 console.log("Downloaded champions !");
-        
                 console.log("Starting download of Spell...");
-                const b3 = new cliProgress.SingleBar({
-                    format: 'Progress |' + '{bar}' + '| {percentage}% || {value}/{total} pictures',
-                    barCompleteChar: '\u2588',
-                    barIncompleteChar: '\u2591',
-                    hideCursor: true
-                });
-                b3.start(tab_spell.length, 0, {
-                    speed: "N/A"
-                });
+                changeETA("Téléchargement de la version de la partie : Téléchargement des sorts")
+                subProgressBar.classList.remove("hidden");
                 for(let c=0; c < tab_spell.length; c++){
                     await downloadSpell(tab_spell[c]);
-                    b3.increment();
+                    progressBar.style.width = ((c/tab_spell.length)*100) + "%";
+                    progressBar.innerHTML = ((c/tab_spell.length)*100).toFixed(2) + "%";
                 }
-                b3.stop();
+                resetProgressBar();
                 console.log("Downloaded Spell !");
+                changeETA("Version de la partie téléchargé...")
                 
             } else {
                 //Else, just load perks
@@ -187,6 +175,6 @@ button.addEventListener("click", function(){
             generateImagePerks();
             console.log("Picture generate !");
             console.log("Picture generate !");
-            eta_text.classList.add("hidden");
+            eta_div.classList.add("hidden");
         })();
 }, false);

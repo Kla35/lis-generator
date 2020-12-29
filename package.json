@@ -19,7 +19,6 @@
   "dependencies": {
     "canvas": "^2.6.1",
     "chart.js": "^2.9.4",
-    "cli-progress": "^3.8.2",
     "fs": "0.0.1-security",
     "image-downloader": "^4.0.2",
     "jsdom": "^16.4.0",

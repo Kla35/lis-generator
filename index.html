@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css"> 
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <title>Hello World!</title>
+    <title>Image Generator for League Stream</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <button id="button">Test</button>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+    <h1>Image Generator for League Stream</h1>
     <div>
       <span>Username :</span>
       <input type="text" id="username" name="username" required>
@@ -24,8 +20,15 @@
       <span>API Key :</span>
       <input type="text" id="apikey" name="apikey" required>
     </div>
-    <div>
-      <p id="etatext" class="hidden">blablabla</p>
+    <button id="button">Generate</button>
+    <div id="etatdiv" class="hidden">
+      <div>
+        <img src="default/loading.gif" width="40px" height="40px"/>
+        <span id="etatext">blablabla</span>
+      </div>
+      <div id="myProgress" class="hidden">
+        <div id="myBar">0%</div>
+      </div>
     </div>
     
     <!-- You can also require other files to run in this process -->

@@ -1008,6 +1008,16 @@ async function createArrayPlayer(){
     });
 }
 
+function resetProgressBar(){
+    subProgressBar.classList.add("hidden");
+    progressBar.innerHTML = "0%"
+    progressBar.style.width = "0%"
+}
+
+function changeETA(str){
+    eta_text.innerHTML = str;
+}
+
 function resetData(){
     game = null;
     timeline = null;
