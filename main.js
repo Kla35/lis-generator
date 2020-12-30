@@ -8,6 +8,7 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: "./logo/defaultRed.png",
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
@@ -27,9 +28,10 @@ function createWindow () {
   mainWindow.loadFile('index.html');
   mainWindow.webContents.on('dom-ready', function () {
     mainWindow.webContents.send('pathfile', app.getAppPath());
+    mainWindow.webContents.send('imgpath', app.getPath("pictures"));
   });
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished

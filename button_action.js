@@ -5,21 +5,22 @@ apikey_input = document.getElementById("apikey");
 matchid_input = document.getElementById("matchid");
 eta_div = document.getElementById("etatdiv")
 eta_text = document.getElementById("etatext");
+eta_image = document.getElementById("etaimage");
 subProgressBar = document.getElementById("myProgress");
 progressBar = document.getElementById("myBar");
-matchid_input.value = "5003935577";
-apikey_input.value = "RGAPI-aff8fe37-d6cd-46af-9312-e36bc6065baf";
 console.log(button);
 console.log(eta_text);
 
 button.addEventListener("click", function(){
     eta_div.classList.remove("hidden");
-    changeETA("Reset du programme");
+    changeETAimg("loading");
+    changeETA("Reset");
     resetData();
-    changeETA("Ajout des valeurs")
+    changeETA("Add value")
     settings.accountName = username_input.value;
     settings.APIKey = apikey_input.value;
     settings.matchId = matchid_input.value;
+    directory_path = directorypath_input.value;
     console.log("test");
     console.log(eta_text.innerHTML);
     console.log(settings.accountName);
@@ -31,25 +32,58 @@ button.addEventListener("click", function(){
     //     message: 'abcd :'
     //     });
         (async () => {
-            game = null;
+            game = {};
             timeline = null;
-            changeETA("Recherche de la game...")
+            changeETA("Research game...")
             //************Retrieve summoner and game*****************
+            if((settings.accountName == "") &&  (settings.matchId == "")){
+                await changeETA("No input in username or match id");
+                await changeETAimg("error");
+                return
+            }
             if(settings.accountName != ""){
                 const playerAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/summoner/v4/summoners/by-name/"+settings.accountName+"?api_key="+settings.APIKey);
                 const jsonPlayer = await playerAPI.json();
+                console.log("ebd");
+                await console.log(jsonPlayer);
+                if (game.hasOwnProperty('status')) {
+                    if((jsonPlayer.status["status_code"] == 403)||(jsonPlayer.status["status_code"] == 401)){
+                        await changeETA("API Key not valid");
+                        await changeETAimg("error");
+                        return
+                        
+                    } else if (jsonPlayer.status["status_code"] == 404){
+                        await changeETA("Summoner name not found");
+                        await changeETAimg("error"); 
+                        return
+                    }
+                }
                 const SummonerId = jsonPlayer["id"];
                 const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
                 game = await gameAPI.json();
             } else if (settings.matchId != ""){
                 const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/match/v4/matches/"+settings.matchId+"?api_key="+settings.APIKey);
                 game = await gameAPI.json();
+                if (game.hasOwnProperty('status')) {
+                    if((game.status["status_code"] == 403)||(game.status["status_code"] == 401)){
+                        await changeETA("API Key not valid");
+                        await changeETAimg("error");
+                        return
+                        
+                    } else if (game.status["status_code"] == 404){
+                        await changeETA("Summoner name not found");
+                        await changeETAimg("error"); 
+                        return
+                    }
+                }
                 const timelineAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/match/v4/timelines/by-match/"+settings.matchId+"?api_key="+settings.APIKey);
                 timeline = await timelineAPI.json();
                 var folder = await mkdirp(path+'/graphs/', { recursive: true });
                 try {
                     await createArrayPlayer()
                   } catch (error) {
+                    await changeETA("Match id doesn't exit");
+                    await changeETAimg("error");
                     console.error("ERROR : Match id doesn't exit");
                     return;
                   }
@@ -57,11 +91,11 @@ button.addEventListener("click", function(){
                 await createDamageGraphRed();
                 await createGoldGraph();
             }
-            //console.log(timeline);
+            await console.log(timeline);
             await initPlayersTeam();
         
             //console.log(game);
-            changeETA("Vérification de l'existance de la partie")
+            changeETA("Verify if game exists...")
             //Check if player is now in game (Expect in coop vs IA). If yes, push the number of blue player
             if(game.gameId == undefined){
                 console.log("This player is not in game / This game don't exist !")
@@ -74,7 +108,7 @@ button.addEventListener("click", function(){
                 });
                 //console.log(nbplayer_blueside);
             }
-            changeETA("Verification de la version...")
+            changeETA("Verify if version exists...")
             //*************Retrieve actual version or old version (depends if the match is now or played)*****************
             version = null;
             if (settings.accountName != ""){
@@ -100,7 +134,7 @@ button.addEventListener("click", function(){
                 createChampJSON(jsonChamp);
                 createSpellJSON(jsonSpell);
                 console.log("Starting download of Perks...");
-                changeETA("Téléchargement de la version de la partie : Téléchargement des runes")
+                changeETA("Download game version ("+ version +") : Perkz download");
                 subProgressBar.classList.remove("hidden");
         
                 for(let a=0; a < tab_runes.length; a++){
@@ -113,7 +147,7 @@ button.addEventListener("click", function(){
                 console.log("Downloaded Perks !");
         
                 console.log("Starting download of champions...");
-                changeETA("Téléchargement de la version de la partie : Téléchargement des champions")
+                changeETA("Download game version ("+ version +") : Champions download");
                 subProgressBar.classList.remove("hidden");
                 
                 for(let b=0; b < tab_champ.length; b++){
@@ -125,6 +159,7 @@ button.addEventListener("click", function(){
                 console.log("Downloaded champions !");
                 console.log("Starting download of Spell...");
                 changeETA("Téléchargement de la version de la partie : Téléchargement des sorts")
+                changeETA("Download game version ("+ version +") : Spell download");
                 subProgressBar.classList.remove("hidden");
                 for(let c=0; c < tab_spell.length; c++){
                     await downloadSpell(tab_spell[c]);
@@ -133,7 +168,7 @@ button.addEventListener("click", function(){
                 }
                 resetProgressBar();
                 console.log("Downloaded Spell !");
-                changeETA("Version de la partie téléchargé...")
+                changeETA("Game version downloaded...")
                 
             } else {
                 //Else, just load perks
@@ -146,6 +181,7 @@ button.addEventListener("click", function(){
             }
         
             /* Prepare data for image generation*/
+            await changeETA("Prepare data for generation");
             game.participants.forEach(summoner => {
                 list_perks = [];
                 if(settings.accountName != ""){
@@ -172,9 +208,10 @@ button.addEventListener("click", function(){
         
             //Generate Image
             console.log("Starting generate picture...");
+            await changeETA("Generation perkz picture");
             generateImagePerks();
             console.log("Picture generate !");
             console.log("Picture generate !");
-            eta_div.classList.add("hidden");
+            //eta_div.classList.add("hidden");
         })();
 }, false);

@@ -1,5 +1,6 @@
 //Load dependencies
 var path = "";
+var directory_path = ""
 var ipcRenderer = require('electron').ipcRenderer;
 ipcRenderer.on('pathfile', function (event,path_received) {
     console.log(path_received);
@@ -10,8 +11,15 @@ ipcRenderer.on('pathfile', function (event,path_received) {
     defaultSettings();
 });
 
+ipcRenderer.on('imgpath', function (event,img_path) {
+    console.log(img_path);
+    directory_path = img_path;
+    directorypath_input = document.getElementById("directorypath");
+    directorypath_input.value = directory_path+"\\lis_generator\\";
+});
+
+
 var mkdirp = require("mkdirp");
-const cliProgress = require('cli-progress');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const download = require('image-downloader');
 const fetch = require('node-fetch');

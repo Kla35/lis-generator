@@ -349,14 +349,19 @@ async function generateImagePerks(){
         }
 
         const buffer = canvas.toBuffer('image/png')
-        fs.writeFileSync('./picture_perkz.png', buffer)
+        if(directory_path == ""){
+            directory_path = ".\\";
+        }
+        await mkdirp(directory_path, { recursive: true });
+        await fs.writeFileSync(directory_path+'picture_perkz.png', buffer)
         position = 0;
         console.log("Starting generate picture...");
         if(settings.matchId != "" && settings.accountName == ""){
-            generateImagePostGame();
+            await changeETA("Generation postgame picture");
+            await generateImagePostGame();
         }
-        
-
+        await changeETA("Image generated into : " + directory_path);
+        await changeETAimg("success")
     });
 }
 
@@ -545,7 +550,11 @@ async function generateImagePostGame(){
         }
 
         const buffer = canvas.toBuffer('image/png')
-        fs.writeFileSync('./picture_postgame.png', buffer)
+        if(directory_path == ""){
+            directory_path = ".\\";
+        }
+        mkdirp(directory_path, { recursive: true });
+        fs.writeFileSync(directory_path+'picture_postgame.png', buffer)
     });
 }
 
@@ -1016,6 +1025,21 @@ function resetProgressBar(){
 
 function changeETA(str){
     eta_text.innerHTML = str;
+}
+
+function changeETAimg(str){
+    switch(str){
+        case("error"):
+            eta_image.src=path+"/default/error.png";
+            break;
+        case("loading"):
+            eta_image.src=path+"/default/loading.gif";
+            break;
+        case("success"):
+            eta_image.src=path+"/default/valid.png";
+            break;
+    }
+    
 }
 
 function resetData(){
