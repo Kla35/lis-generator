@@ -1,4 +1,4 @@
-# lol-picture-generate-for-stream (Previously lol-runes-overlay)
+# LIS Generator (Previously lol-picture-generate-for-stream)
 A small Javascript software who retrieve data from Riot API to generate a pregame picture (Username, Champion, Summoners, and Perks {Runes]...) and a postgame picture on a game (Team win, stats, damage graph, gold graph...).
 
 Works (but still under development)
