@@ -5,19 +5,17 @@ Works (but still under development)
 
 How to use it ?
 ---
-Clone the repertory in your computer
+Download the lastest release and install it
 
-In settings.json, enter in APIKey your API development key (from Riot API : https://developer.riotgames.com/apis)
+You will need a API Key given by Riot Devs website (https://developer.riotgames.com/) when you create a account
 
-Next, you got the choice.
+Then enter a username or a match id, and it will generate the 2 pictures !
 
-Case 1 : If you want to generate a picture of a now in-game match, just type the username of one of the player in the game you want to generate the picture in "accountName". It will only generate a pregame picture.
+![The look of the software](https://github.com/Kla35/lol-picture-generate-for-stream/blob/master/software_example.png)
 
-Case 2 : If you want to generate a picture of a past match, type the id of the match in "matchId". It will generate a pregame picture and a postgame picture.
-
-Launch the software with a cmd and "node index.js"
-
-If the player is not a game, it just stop the software without creating a picture.
+And if I clone it, how can I start it ?
+---
+For launching the software, you will need to type : "npm start" in the directory
 
 Example :
 ---
