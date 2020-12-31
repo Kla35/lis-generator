@@ -20,10 +20,10 @@ For launching the software, you will need to type : "npm start" in the directory
 Example :
 ---
 Draft & Ranked Game pregame picture example :
-![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/picture_example.png)
+![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/example/picture_example.png)
 
 Custom game pregame picture if there is 10 players in the game example :
-![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/picture_example2.png)
+![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/example/picture_example2.png)
 
 Postgame picture example :
-![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/picture_postgame_example.png)
+![Example 1](https://github.com/Kla35/lol-runes-overlay/blob/master/example/picture_postgame_example.png)
