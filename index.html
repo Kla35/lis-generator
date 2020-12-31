@@ -10,32 +10,85 @@
   <body>
     <h1>Image Generator for League Stream</h1>
     <div>
-      <span>Path for saving image :</span>
-      <input type="text" id="directorypath" name="directorypath" required>
+      <div>
+        <span>Path for saving image :</span>
+        <input type="text" id="directorypath" name="directorypath" required>
+      </div>
+      <div>
+        <span>Username :</span>
+        <input type="text" id="username" name="username">
+      </div>
+      <div>
+        <span>Match ID :</span>
+        <input type="text" id="matchid" name="matchid">
+      </div>
+      <div>
+        <span>API Key :</span>
+        <input type="text" id="apikey" name="apikey" required>
+      </div>
+      <div>
+        <span>Server :</span>
+        <select name="server_apo" id="server-select">
+          <option value="euw1" selected="selected">Europe West (euw)</option>
+          <option value="eun1">Europe North (eune)</option>
+          <option value="kr">Korea (kr)</option>
+          <option value="na1">North America (na)</option>
+          <option value="la1">Latinamerica 1 (la1)</option>
+          <option value="la2">Latinamerica 2 (la2)</option> 
+          <option value="br1">Brasil (br)</option>
+          <option value="tr1">Turkey (tu)</option>
+          <option value="ru">Russia (ru)</option>
+          <option value="oc1">Oceania (oc)</option>
+          <option value="jp1">Japan (jp)</option>
+        </select>
+      </div>
     </div>
-    <div>
-      <span>Username :</span>
-      <input type="text" id="username" name="username" required>
-    </div>
-    <div>
-      <span>Match ID :</span>
-      <input type="text" id="matchid" name="matchid" required>
-    </div>
-    <div>
-      <span>API Key :</span>
-      <input type="text" id="apikey" name="apikey" required>
+    <div class="flex_info">
+      <div id="blueSpace">
+        <h2>Blue team settings</h2>
+        <div>
+          <span>Blue team name :</span>
+          <input type="text" id="blueTeamName" name="blueTeamName" required>
+        </div>
+        <div>
+          <span>Blue team icon :</span>
+          <div class="flex_info">
+            <input type="text" id="blueTeamIconPath" readonly>
+            <button id="cancelBlueIcon" class="hidden" style="color:red">X</button>
+            <input type="file" id="blueTeamIcon" onchange="selectFileBlue(event)" accept="image/png, image/jpeg">
+          </div>
+        </div>
+      </div>
+      <div id="redSpace">
+        <h2>Red team settings</h2>
+        <div>
+          <span>Red team name :</span>
+          <input type="text" id="redTeamName" name="redTeamName" required>
+        </div>
+        <div>
+          <span>Red team icon :</span>
+          <div class="flex_info">
+            <input type="text" id="redTeamIconPath" readonly>
+            <button id="cancelRedIcon" class="hidden" style="color:red">X</button>
+            <input type="file" id="redTeamIcon" onchange="selectFileRed(event)" accept="image/png, image/jpeg">
+          </div>
+        </div>
+      </div>
     </div>
     <button id="button">Generate</button>
-    <div id="etatdiv" class="hidden">
-      <div>
-        <img id="etaimage" src="default/loading.gif" width="40px" height="40px"/>
-        <span id="etatext">blablabla</span>
+    <div>
+      <div id="etatdiv" class="hidden">
+        <div>
+          <img id="etaimage" src="default/loading.gif" width="40px" height="40px"/>
+          <span id="etatext">blablabla</span>
+        </div>
       </div>
-      <div id="myProgress" class="hidden">
-        <div id="myBar">0%</div>
+      <div>
+        <div id="myProgress" class="hidden">
+          <div id="myBar">0%</div>
+        </div>
       </div>
     </div>
-    
     <!-- You can also require other files to run in this process -->
     <script src="./preload_lib_var.js"></script>
     <script src="./functions.js"></script>

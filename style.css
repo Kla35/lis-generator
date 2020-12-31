@@ -1,5 +1,5 @@
 .hidden {
-    visibility: hidden;
+    display: none;
 }
 
 .flex_info {
@@ -11,13 +11,27 @@
 #myProgress {
     width: 100%;
     background-color: grey;
-  }
-  
-  #myBar {
-    width: 0%;
-    height: 30px;
-    background-color: green;
-    text-align: center; /* To center it horizontally (if you want) */
-    line-height: 30px; /* To center it vertically */
-    color: white; 
-  }
+}
+
+#myBar {
+  width: 0%;
+  height: 30px;
+  background-color: green;
+  text-align: center; /* To center it horizontally (if you want) */
+  line-height: 30px; /* To center it vertically */
+  color: white; 
+}
+
+#blueSpace{
+  width: 100%;
+  background-color: rgba(0, 59, 252, 0.74);
+  padding-bottom: 20px;
+  margin-top: 10px;
+}
+
+#redSpace{
+  width: 100%;
+  background-color: rgba(252, 59, 0, 0.74);
+  padding-bottom: 20px;
+  margin-top: 10px;
+}

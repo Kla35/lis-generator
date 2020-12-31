@@ -6,7 +6,7 @@ const notifier = require('node-notifier');
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 900,
     height: 600,
     icon: "./logo/defaultRed.png",
     webPreferences: {

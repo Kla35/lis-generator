@@ -214,7 +214,7 @@ async function generateImagePerks(){
         context.font = 'bold 20pt Arial'
 
         if(settings.logoTeam1 != ""){
-            await loadImage(path+'/logo/'+settings.logoTeam1).then(async image => {
+            await loadImage(settings.logoTeam1).then(async image => {
                 await context.drawImage(image, positionXMesurePerkz.team1, positionYMesurePerkz.team1, mesureXPerkz.team1, mesureYPerkz.team1);
             });
         } else {
@@ -224,7 +224,7 @@ async function generateImagePerks(){
         }
 
         if(settings.logoTeam2 != ""){
-            await loadImage(path+'/logo/'+settings.logoTeam1).then(async image => {
+            await loadImage(settings.logoTeam2).then(async image => {
                 await context.drawImage(image, positionXMesurePerkz.team2, positionYMesurePerkz.team2, mesureXPerkz.team2, mesureYPerkz.team2);
             });
         } else {
@@ -422,7 +422,7 @@ async function generateImagePostGame(){
 
 
         if(settings.logoTeam1 != ""){
-            await loadImage(path+'/logo/'+settings.logoTeam1).then(async image => {
+            await loadImage(settings.logoTeam1).then(async image => {
                 await context.drawImage(image, positionXMesurePostGame.team1, positionYMesurePostGame.team1, mesureXPostGame.team1, mesureYPostGame.team1);
             });
         } else {
@@ -432,7 +432,7 @@ async function generateImagePostGame(){
         }
 
         if(settings.logoTeam2 != ""){
-            await loadImage(path+'/logo/'+settings.logoTeam1).then(async image => {
+            await loadImage(settings.logoTeam2).then(async image => {
                 await context.drawImage(image, positionXMesurePostGame.team2, positionYMesurePostGame.team2, mesureXPostGame.team2, mesureYPostGame.team2);
             });
         } else {
@@ -1040,6 +1040,16 @@ function changeETAimg(str){
             break;
     }
     
+}
+
+function retrieveData(){
+    settings.accountName = username_input.value;
+    settings.APIKey = apikey_input.value;
+    settings.matchId = matchid_input.value;
+    settings.server = server_select.value;
+    settings.team1Name = blueName_input.value;
+    settings.team2Name = redName_input.value;
+    directory_path = directorypath_input.value;
 }
 
 function resetData(){

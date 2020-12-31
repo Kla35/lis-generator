@@ -8,7 +8,6 @@ ipcRenderer.on('pathfile', function (event,path_received) {
     settings = require(path+'/settings.json');
     console.log(settings);
     registerFont(path+'/font/FjallaOne-Regular.ttf', { family: 'FjallaOne' });
-    defaultSettings();
 });
 
 ipcRenderer.on('imgpath', function (event,img_path) {

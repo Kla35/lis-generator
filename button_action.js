@@ -6,10 +6,35 @@ matchid_input = document.getElementById("matchid");
 eta_div = document.getElementById("etatdiv")
 eta_text = document.getElementById("etatext");
 eta_image = document.getElementById("etaimage");
+server_select = document.getElementById("server-select");
+
+blueName_input = document.getElementById("blueTeamName");
+blueIconPath_button = document.getElementById("cancelBlueIcon");
+blueIconPath_input = document.getElementById("blueTeamIconPath");
+redName_input = document.getElementById("redTeamName");
+redIconPath_button = document.getElementById("cancelRedIcon");
+redIconPath_input = document.getElementById("redTeamIconPath");
+
 subProgressBar = document.getElementById("myProgress");
 progressBar = document.getElementById("myBar");
+
 console.log(button);
 console.log(eta_text);
+
+blueIconPath_button.addEventListener("click", function(){
+    blueIconPath_input.value = "";
+    document.getElementById("blueTeamIcon").value = "";
+    settings.logoTeam1 = "";
+    blueIconPath_button.classList.add("hidden");
+});
+
+redIconPath_button.addEventListener("click", function(){
+    redIconPath_input.value = "";
+    document.getElementById("redTeamIcon").value = "";
+    settings.logoTeam2 = "";
+    redIconPath_button.classList.add("hidden");
+});
+
 
 button.addEventListener("click", function(){
     eta_div.classList.remove("hidden");
@@ -17,16 +42,9 @@ button.addEventListener("click", function(){
     changeETA("Reset");
     resetData();
     changeETA("Add value")
-    settings.accountName = username_input.value;
-    settings.APIKey = apikey_input.value;
-    settings.matchId = matchid_input.value;
-    directory_path = directorypath_input.value;
-    console.log("test");
-    console.log(eta_text.innerHTML);
-    console.log(settings.accountName);
-    console.log(settings.APIKey);
-    console.log(settings.matchId);
-    console.log("test2");
+    retrieveData();
+    defaultSettings();
+    console.log(settings);
     // notifier.notify({
     //     title: 'My notification',
     //     message: 'abcd :'
@@ -71,7 +89,7 @@ button.addEventListener("click", function(){
                         return
                         
                     } else if (game.status["status_code"] == 404){
-                        await changeETA("Summoner name not found");
+                        await changeETA("Game doesn't exist (wrong match id)");
                         await changeETAimg("error"); 
                         return
                     }
