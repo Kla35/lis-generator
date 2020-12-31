@@ -11,7 +11,7 @@ You will need a API Key given by Riot Devs website (https://developer.riotgames.
 
 Then enter a username or a match id, and it will generate the 2 pictures !
 
-![The look of the software](https://github.com/Kla35/lol-picture-generate-for-stream/blob/master/software_example.png)
+![The look of the software](https://github.com/Kla35/lol-picture-generate-for-stream/blob/master/example/software_example.png)
 
 And if I clone it, how can I start it ?
 ---
