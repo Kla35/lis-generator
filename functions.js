@@ -19,6 +19,26 @@ function generateBanBlue(game){
     
 }
 
+async function generateBanBlue_lcu(){
+    tab = [];
+    document.getElementById("left_ban").value.split(",").forEach(item => {
+        if(item != ""){
+            tab.push(item+".png");
+        }
+    })
+    return tab;
+}
+
+async function generateBanRed_lcu(){
+    tab = [];
+    document.getElementById("right_ban").value.split(",").forEach(item => {
+        if(item != ""){
+            tab.push(item+".png");
+        }
+    })
+    return tab;
+}
+
 function generateBanRed(game){
     tab = [];
     if(settings.accountName != ""){
@@ -85,6 +105,7 @@ async function downloadPerk(item){
 
 //Download champion image from DDragon
 async function downloadChamp(item){
+    console.log(item);
     const options = {
       url: 'http://ddragon.leagueoflegends.com/cdn/'+version+'/img/champion/'+item.img,
       dest: path+'/data/'+version+"/en_US/champion/"+item.img
@@ -94,7 +115,16 @@ async function downloadChamp(item){
     
     await download.image(options).catch((err) => console.error(err))
 }
-
+ async function downloadChampLoading(item){
+    const options = {
+      url: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/'+item.img.substring(0,item.img.length-4)+'_0.jpg',
+      dest: path+'/data/'+version+"/en_US/champion_loading/"+item.img
+    }
+    https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Viego_0.jpg
+    await verifyFSChampLoading();
+    
+    await download.image(options).catch((err) => console.error(err))
+}
 //Download spell image from DDragon
 async function downloadSpell(item){
     const options = {
@@ -182,6 +212,10 @@ async function verifyFSPerk(dest){
 //Verify if folder exist for Champ : If not, create it
 async function verifyFSChamp(){
     await mkdirp(path+'/data/'+version+'/en_US/champion/', { recursive: true });
+}
+
+async function verifyFSChampLoading(){
+    await mkdirp(path+'/data/'+version+'/en_US/champion_loading/', { recursive: true });
 }
 
 //Verify if folder exist for Spell : If not, create it
@@ -358,22 +392,33 @@ async function generateImagePerks(){
         console.log("Starting generate picture...");
         if(settings.matchId != "" && settings.accountName == ""){
             await changeETA("Generation postgame picture");
-            await generateImagePostGame();
+            await generateImagePostGame(false);
         }
         await changeETA("Image generated into : " + directory_path);
         await changeETAimg("success")
     });
 }
 
-async function generateImagePostGame(){
+async function generateImagePostGame(bool_from){
     const width = 1920
     const height = 1080
     const canvas = createCanvas(width, height)
     const context = canvas.getContext('2d')
     baseline_link = path+'/concept/baseline_postgame.png';
-    var blueStats = await checkBlueStats();
-    var redStats = await checkRedStats();
-    await checkDrake(blueStats, redStats);
+    var blueStats = null
+    var redStats = null
+    if(bool_from){
+        blueStats = await checkBlueStats_lcu();
+        redStats = await checkRedStats_lcu();
+        game.banned_array_blue = await generateBanBlue_lcu();
+        game.banned_array_red = await generateBanRed_lcu();
+        console.log(game);
+        await checkDrake_lcu(blueStats, redStats);
+    } else {
+        blueStats = await checkBlueStats();
+        redStats = await checkRedStats();
+        await checkDrake(blueStats, redStats);
+    }
     await prepareDrakePixel(blueStats, redStats);
     console.log(blueStats);
     console.log(redStats);
@@ -386,8 +431,11 @@ async function generateImagePostGame(){
         context.textAlign = 'center';
         context.fillStyle = '#ffffff';
 
-        
-        await context.fillText(""+Math.floor(game.gameDuration/60)+":"+game.gameDuration%60, positionXMesurePostGame.timer, positionYMesurePostGame.timer);
+        if (bool_from){
+            await context.fillText(""+Math.floor(game.gameLength/60)+":"+game.gameLength%60, positionXMesurePostGame.timer, positionYMesurePostGame.timer);
+        } else {
+            await context.fillText(""+Math.floor(game.gameDuration/60)+":"+game.gameDuration%60, positionXMesurePostGame.timer, positionYMesurePostGame.timer);
+        }
         await context.fillText(blueStats.win, positionXMesurePostGame.winBlue, positionYMesurePostGame.winBlue);
         await context.fillText(redStats.win, positionXMesurePostGame.winRed, positionYMesurePostGame.winRed);
         await context.fillText(blueStats.tower, positionXMesurePostGame.towerBlue, positionYMesurePostGame.towerBlue);
@@ -415,10 +463,15 @@ async function generateImagePostGame(){
             await context.drawImage(image, -160, 525, 300, 300);
         });
         await context.restore();
-
-        await loadImage(path+'/graphs/test.bar.png').then(async image => {
-            await context.drawImage(image, 980, 780, 900, 300);
-        });
+        if(bool_from){
+            await loadImage(path+'/enhancement/gold.png').then(async image => {
+                await context.drawImage(image, 1165, 787, 650, 278);
+            });
+        } else {
+            await loadImage(path+'/graphs/test.bar.png').then(async image => {
+                await context.drawImage(image, 980, 780, 900, 300);
+            });
+        }
 
 
         if(settings.logoTeam1 != ""){
@@ -440,7 +493,7 @@ async function generateImagePostGame(){
                 await context.drawImage(image, positionXMesurePostGame.team2, positionYMesurePostGame.team2, mesureXPostGame.team2, mesureYPostGame.team2);
             });
         }
-
+        
         for(let k=0; k<blueStats.drake.length;k++){
             drk = blueStats.drake[k];
             await loadImage(path+'/concept/'+drk.name+'.png').then(async image => {
@@ -455,58 +508,6 @@ async function generateImagePostGame(){
             });
         }
 
-        for(let k=0; k<game.participants.length;k++){
-            await updatePositionPostGame();
-            summoner = game.participants[k];
-            //Champ Square
-            await loadImage(path+'/default/champ_default.png').then(async image => {
-                await context.drawImage(image, positionXMesurePostGame.champ, positionYMesurePostGame.champ, mesureXPostGame.champ, mesureYPostGame.champ);
-            });
-
-            await loadImage(path+'/data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
-                await context.drawImage(image, positionXMesurePostGame.champ, positionYMesurePostGame.champ, mesureXPostGame.champ, mesureYPostGame.champ);
-            }).catch(async error => {
-                console.log("Image of a champ not find : " + summoner.champImg);
-            });
-            if(summoner.teamId == 100){
-                await loadImage(path+'/default/champ_default.png').then(async image => {
-                    await context.drawImage(image, positionXMesurePostGame.champDamageBlue, positionYMesurePostGame.champDamageBlue, mesureXPostGame.champDamageBlue, mesureYPostGame.champDamageBlue);
-                });
-    
-                await loadImage(path+'/data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
-                    await context.drawImage(image, positionXMesurePostGame.champDamageBlue, positionYMesurePostGame.champDamageBlue, mesureXPostGame.champDamageBlue, mesureYPostGame.champDamageBlue);
-                }).catch(async error => {
-                    console.log("Image of a champ not find : " + summoner.champImg);
-                });
-                context.textAlign = 'left';
-                context.font = 'bold 30pt FjallaOne'
-                await context.fillText((summoner.stats.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageBlue, positionYMesurePostGame.damageBlue);
-                context.textAlign = 'center';
-                context.font = 'bold 36pt FjallaOne'
-                positionYMesurePostGame.damageBlue = positionYMesurePostGame.damageBlue + 54;
-                positionYMesurePostGame.champDamageBlue = positionYMesurePostGame.champDamageBlue + 54;
-            }
-
-            if(summoner.teamId == 200){
-                await loadImage(path+'/default/champ_default.png').then(async image => {
-                    await context.drawImage(image, positionXMesurePostGame.champDamageRed, positionYMesurePostGame.champDamageRed, mesureXPostGame.champDamageRed, mesureYPostGame.champDamageRed);
-                });
-    
-                await loadImage(path+'/data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
-                    await context.drawImage(image, positionXMesurePostGame.champDamageRed, positionYMesurePostGame.champDamageRed, mesureXPostGame.champDamageRed, mesureYPostGame.champDamageRed);
-                }).catch(async error => {
-                    console.log("Image of a champ not find : " + summoner.champImg);
-                });
-                context.textAlign = 'right';
-                context.font = 'bold 30pt FjallaOne'
-                await context.fillText((summoner.stats.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageRed, positionYMesurePostGame.damageRed);
-                context.textAlign = 'center';
-                context.font = 'bold 36pt FjallaOne'
-                positionYMesurePostGame.damageRed = positionYMesurePostGame.damageRed + 54;
-                positionYMesurePostGame.champDamageRed = positionYMesurePostGame.champDamageRed + 54;
-            }
-            
-        }
         //Add blue bans
         link = '';
         for(let k=0; k<game.banned_array_blue.length;k++){
@@ -514,6 +515,7 @@ async function generateImagePostGame(){
                 link = path+'/concept/no_ban.png';
             } else {
                 link = path+'/data/'+version+'/en_US/champion/'+game.banned_array_blue[k];
+                console.log(link);
             }
             await loadImage(link).then(async image => {
                 await context.drawImage(image, positionXMesurePostGame.ban, positionYMesurePostGame.ban, mesureXPostGame.ban, mesureYPostGame.ban);
@@ -526,7 +528,6 @@ async function generateImagePostGame(){
             });
             positionXMesurePostGame.ban = positionXMesurePostGame.ban + 81;
         }
-
         //Change position of ban image
         positionXMesurePostGame.ban = 535;
 
@@ -549,12 +550,252 @@ async function generateImagePostGame(){
             positionXMesurePostGame.ban = positionXMesurePostGame.ban + 81;
         }
 
+        if(!bool_from){
+            for(let k=0; k<game.participants.length;k++){
+                await updatePositionPostGame();
+                summoner = game.participants[k];
+                //Champ Square
+                await loadImage(path+'/default/champ_default.png').then(async image => {
+                    await context.drawImage(image, positionXMesurePostGame.champ, positionYMesurePostGame.champ, mesureXPostGame.champ, mesureYPostGame.champ);
+                });
+
+                await loadImage(path+'/data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
+                    await context.drawImage(image, positionXMesurePostGame.champ, positionYMesurePostGame.champ, mesureXPostGame.champ, mesureYPostGame.champ);
+                }).catch(async error => {
+                    console.log("Image of a champ not find : " + summoner.champImg);
+                });
+                if(summoner.teamId == 100){
+                    await loadImage(path+'/default/champ_default.png').then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageBlue, positionYMesurePostGame.champDamageBlue, mesureXPostGame.champDamageBlue, mesureYPostGame.champDamageBlue);
+                    });
+        
+                    await loadImage(path+'/data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageBlue, positionYMesurePostGame.champDamageBlue, mesureXPostGame.champDamageBlue, mesureYPostGame.champDamageBlue);
+                    }).catch(async error => {
+                        console.log("Image of a champ not find : " + summoner.champImg);
+                    });
+                    context.textAlign = 'left';
+                    context.font = 'bold 30pt FjallaOne'
+                    await context.fillText((summoner.stats.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageBlue, positionYMesurePostGame.damageBlue);
+                    context.textAlign = 'center';
+                    context.font = 'bold 36pt FjallaOne'
+                    positionYMesurePostGame.damageBlue = positionYMesurePostGame.damageBlue + 54;
+                    positionYMesurePostGame.champDamageBlue = positionYMesurePostGame.champDamageBlue + 54;
+                }
+
+                if(summoner.teamId == 200){
+                    await loadImage(path+'/default/champ_default.png').then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageRed, positionYMesurePostGame.champDamageRed, mesureXPostGame.champDamageRed, mesureYPostGame.champDamageRed);
+                    });
+        
+                    await loadImage(path+'/data/'+version+'/en_US/champion/'+summoner.champImg).then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageRed, positionYMesurePostGame.champDamageRed, mesureXPostGame.champDamageRed, mesureYPostGame.champDamageRed);
+                    }).catch(async error => {
+                        console.log("Image of a champ not find : " + summoner.champImg);
+                    });
+                    context.textAlign = 'right';
+                    context.font = 'bold 30pt FjallaOne'
+                    await context.fillText((summoner.stats.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageRed, positionYMesurePostGame.damageRed);
+                    context.textAlign = 'center';
+                    context.font = 'bold 36pt FjallaOne'
+                    positionYMesurePostGame.damageRed = positionYMesurePostGame.damageRed + 54;
+                    positionYMesurePostGame.champDamageRed = positionYMesurePostGame.champDamageRed + 54;
+                }
+                
+            }
+
+        } else {
+            game.participants = [];
+            for(let z=0; z<game.teams[0].players.length;z++){
+                game.participants.push(game.teams[0].players[z]);
+            }
+            for(let z=0; z<game.teams[1].players.length;z++){
+                game.participants.push(game.teams[1].players[z]);
+            }
+            for(let k=0; k<game.participants.length;k++){
+                await updatePositionPostGame();
+                summoner = game.participants[k];
+                //Champ Square
+                console.log(positionXMesurePostGame.champ, positionYMesurePostGame.champ);
+                await loadImage(path+'/default/champ_default.png').then(async image => {
+                    await context.drawImage(image, positionXMesurePostGame.champ, positionYMesurePostGame.champ, mesureXPostGame.champ, mesureYPostGame.champ);
+                });
+                await loadImage(path+'/data/'+version+'/en_US/champion/'+translateChamp(summoner.championId)).then(async image => {
+                    await context.drawImage(image, positionXMesurePostGame.champ, positionYMesurePostGame.champ, mesureXPostGame.champ, mesureYPostGame.champ);
+                }).catch(async error => {
+                    console.log("Image of a champ not find : " + translateChamp(summoner.championId));
+                });
+                if(summoner.teamId == 100){
+                    await loadImage(path+'/default/champ_default.png').then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageBlue, positionYMesurePostGame.champDamageBlue, mesureXPostGame.champDamageBlue, mesureYPostGame.champDamageBlue);
+                    });
+        
+                    await loadImage(path+'/data/'+version+'/en_US/champion/'+translateChamp(summoner.championId)).then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageBlue, positionYMesurePostGame.champDamageBlue, mesureXPostGame.champDamageBlue, mesureYPostGame.champDamageBlue);
+                    }).catch(async error => {
+                        console.log("Image of a champ not find : " + translateChamp(summoner.championId));
+                    });
+                    context.textAlign = 'left';
+                    context.font = 'bold 30pt FjallaOne'
+                    await context.fillText((summoner.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS/1000).toFixed(1) + "k", positionXMesurePostGame.damageBlue, positionYMesurePostGame.damageBlue);
+                    context.textAlign = 'center';
+                    context.font = 'bold 36pt FjallaOne'
+                    positionYMesurePostGame.damageBlue = positionYMesurePostGame.damageBlue + 54;
+                    positionYMesurePostGame.champDamageBlue = positionYMesurePostGame.champDamageBlue + 54;
+                }
+    
+                if(summoner.teamId == 200){
+                    await loadImage(path+'/default/champ_default.png').then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageRed, positionYMesurePostGame.champDamageRed, mesureXPostGame.champDamageRed, mesureYPostGame.champDamageRed);
+                    });
+        
+                    await loadImage(path+'/data/'+version+'/en_US/champion/'+translateChamp(summoner.championId)).then(async image => {
+                        await context.drawImage(image, positionXMesurePostGame.champDamageRed, positionYMesurePostGame.champDamageRed, mesureXPostGame.champDamageRed, mesureYPostGame.champDamageRed);
+                    }).catch(async error => {
+                        console.log("Image of a champ not find : " + translateChamp(summoner.championId));
+                    });
+                    context.textAlign = 'right';
+                    context.font = 'bold 30pt FjallaOne'
+                    await context.fillText((summoner.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS/1000).toFixed(1) + "k", positionXMesurePostGame.damageRed, positionYMesurePostGame.damageRed);
+                    context.textAlign = 'center';
+                    context.font = 'bold 36pt FjallaOne'
+                    positionYMesurePostGame.damageRed = positionYMesurePostGame.damageRed + 54;
+                    positionYMesurePostGame.champDamageRed = positionYMesurePostGame.champDamageRed + 54;
+                }
+                
+            }
+
+            link = '';
+            // for(let k=0; k<game.teams[0].championBans.length;k++){
+            //     if(game.teams[0].championBans[k] == ''){
+            //         link = path+'/concept/no_ban.png';
+            //     } else {
+            //         link = path+'/data/'+version+'/en_US/champion/'+translateChamp(game.teams[0].championBans[k]);
+            //     }
+            //     await loadImage(link).then(async image => {
+            //         await context.drawImage(image, positionXMesurePostGame.ban, positionYMesurePostGame.ban, mesureXPostGame.ban, mesureYPostGame.ban);
+            //     }).catch(async error => {
+            //         console.log("Image of a champ not find : " + translateChamp(game.teams[0].championBans));
+            //     });
+
+            //     await loadImage(path+'/concept/ban_champ.png').then(async image => {
+            //         await context.drawImage(image, positionXMesurePostGame.ban, positionYMesurePostGame.ban, mesureXPostGame.ban, mesureYPostGame.ban);
+            //     });
+            //     positionXMesurePostGame.ban = positionXMesurePostGame.ban + 81;
+            // }
+
+            // //Add red bans
+            // for(let k=0; k<game.teams[1].championBans.length;k++){
+            //     if(game.teams[1].championBans[k] == ''){
+            //         link = path+'/concept/no_ban.png';
+            //     } else {
+            //         link = path+'/data/'+version+'/en_US/champion/'+translateChamp(game.teams[1].championBans);
+            //     }
+            //     await loadImage(link).then(async image => {
+            //         await context.drawImage(image, positionXMesurePostGame.ban, positionYMesurePostGame.ban, mesureXPostGame.ban, mesureYPostGame.ban);
+            //     }).catch(async error => {
+            //         console.log("Image of a champ not find : " + translateChamp(game.teams[1].championBans));
+            //     });
+
+            //     await loadImage(path+'/concept/ban_champ.png').then(async image => {
+            //         await context.drawImage(image, positionXMesurePostGame.ban, positionYMesurePostGame.ban, mesureXPostGame.ban, mesureYPostGame.ban);
+            //     });
+            //     positionXMesurePostGame.ban = positionXMesurePostGame.ban + 81;
+            // }
+        }
+
+
         const buffer = canvas.toBuffer('image/png')
         if(directory_path == ""){
             directory_path = ".\\";
         }
+        console.log("gen1");
         mkdirp(directory_path, { recursive: true });
         fs.writeFileSync(directory_path+'picture_postgame.png', buffer)
+        console.log("gen2 +"+ directory_path+'picture_postgame.png');
+    });
+}
+
+function prepareMVPStats(id){
+    var json = {};
+    var subId = id
+    var subTeam = 0
+    if (id>4){
+        subId = id-5;
+        subTeam = 1;
+    }
+    var playerJSON = game.teams[subTeam].players[subId];
+    json.username = playerJSON.summonerName;
+    json.kda = ((parseInt(playerJSON.stats.CHAMPIONS_KILLED)+parseInt(playerJSON.stats.ASSISTS))/parseInt(playerJSON.stats.NUM_DEATHS)).toFixed(2);
+    json.kp = (((parseInt(playerJSON.stats.CHAMPIONS_KILLED)+parseInt(playerJSON.stats.ASSISTS))/parseInt(game.teams[subTeam].stats.CHAMPIONS_KILLED))*100).toFixed(2);
+    json.dmg = ((parseInt(playerJSON.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS)/parseInt(game.teams[subTeam].stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS))*100).toFixed(2);
+    json.vision = parseInt(playerJSON.stats.VISION_SCORE);
+    json.champId = playerJSON.championId;
+    return json;
+}
+
+async function generateImageMVP(id){
+    const width = 1920
+    const height = 1080
+    const canvas = createCanvas(width, height)
+    const context = canvas.getContext('2d')
+    baseline_link = path+'/concept/baseline_mvp.png';
+    var MVPStats = prepareMVPStats(id);
+    //Base
+    loadImage(baseline_link).then(async image => {
+        context.drawImage(image, 0, 0, 1920, 1080);
+
+        context.font = 'bold 40pt FjallaOne'
+        context.textBaseline = 'bottom'
+        context.textAlign = 'center';
+        context.fillStyle = '#ffffff';
+
+        //Username
+        await context.fillText(MVPStats.username, positionXMesureMVP.username, positionYMesureMVP.username);
+        context.textAlign = await 'right';
+        context.font = await 'bold 70pt FjallaOne'
+        //KDA
+        await context.fillText(MVPStats.kda, positionXMesureMVP.kda, positionYMesureMVP.kda);
+        //KP
+        await context.fillText(MVPStats.kp+"%", positionXMesureMVP.kp, positionYMesureMVP.kp);
+        //DMG
+        await context.fillText(MVPStats.dmg+"%", positionXMesureMVP.dmg, positionYMesureMVP.dmg);
+        //VISION
+        await context.fillText(MVPStats.vision, positionXMesureMVP.vision, positionYMesureMVP.vision);
+        var champName = await translateChamp(MVPStats.champId);
+        console.log(champName);
+        await loadImage(path+'/data/'+version+'/en_US/champion_loading/'+champName).then(async image => {
+            await context.drawImage(image, 253, 236, 345, 627);
+        });
+
+        // if(settings.logoTeam1 != ""){
+        //     await loadImage(settings.logoTeam1).then(async image => {
+        //         await context.drawImage(image, positionXMesurePostGame.team1, positionYMesurePostGame.team1, mesureXPostGame.team1, mesureYPostGame.team1);
+        //     });
+        // } else {
+        //     await loadImage(path+'/logo/defaultBlue.png').then(async image => {
+        //         await context.drawImage(image, positionXMesurePostGame.team1, positionYMesurePostGame.team1, mesureXPostGame.team1, mesureYPostGame.team1);
+        //     });
+        // }
+
+        // if(settings.logoTeam2 != ""){
+        //     await loadImage(settings.logoTeam2).then(async image => {
+        //         await context.drawImage(image, positionXMesurePostGame.team2, positionYMesurePostGame.team2, mesureXPostGame.team2, mesureYPostGame.team2);
+        //     });
+        // } else {
+        //     await loadImage(path+'/logo/defaultRed.png').then(async image => {
+        //         await context.drawImage(image, positionXMesurePostGame.team2, positionYMesurePostGame.team2, mesureXPostGame.team2, mesureYPostGame.team2);
+        //     });
+        // }
+        
+        const buffer = canvas.toBuffer('image/png')
+        if(directory_path == ""){
+            directory_path = ".\\";
+        }
+        console.log("gen1");
+        mkdirp(directory_path, { recursive: true });
+        fs.writeFileSync(directory_path+'picture_mvp.png', buffer)
+        console.log("gen2 +"+ directory_path+'picture_mvp.png');
     });
 }
 
@@ -649,6 +890,58 @@ async function checkBlueStats(){
     return json;
 }
 
+async function checkBlueStats_lcu(){
+    json = {}
+    json.kill = 0;
+    json.death = 0;
+    json.assist = 0;
+    json.total_gold = 0;
+    json.vision_score = 0;
+    game.teams.forEach(team => {
+        if (team.teamId == 100){
+            if (team.isWinningTeam == true){
+                json.win =  "LOSE";
+            } else {
+                json.win = "WIN";
+            }
+            json.baron = 0 //Pas possiblité de récup la stats
+            json.tower =  team.stats.TURRETS_KILLED
+            json.kill = team.stats.CHAMPIONS_KILLED
+            json.death = team.stats.NUM_DEATHS
+            json.assist = team.stats.ASSISTS
+            json.total_gold = team.stats.GOLD_EARNED
+            json.vision_score = team.stats.VISION_SCORE
+        }
+    });
+    return json;
+}
+
+async function checkRedStats_lcu(){
+    json = {}
+    json.kill = 0;
+    json.death = 0;
+    json.assist = 0;
+    json.total_gold = 0;
+    json.vision_score = 0;
+    game.teams.forEach(team => {
+        if (team.teamId == 200){
+            if (team.isWinningTeam == true){
+                json.win =  "LOSE";
+            } else {
+                json.win = "WIN";
+            }
+            json.baron = 0 //Pas possiblité de récup la stats
+            json.tower =  team.stats.TURRETS_KILLED
+            json.kill = team.stats.CHAMPIONS_KILLED
+            json.death = team.stats.NUM_DEATHS
+            json.assist = team.stats.ASSISTS
+            json.total_gold = team.stats.GOLD_EARNED
+            json.vision_score = team.stats.VISION_SCORE
+        }
+    });
+    return json;
+}
+
 async function checkRedStats(){
     json = {}
     game.teams.forEach(team => {
@@ -698,6 +991,34 @@ async function checkDrake(blueJson, redJson){
             }
         })
     })
+}
+
+async function checkDrake_lcu(blueJson, redJson){
+    blueJson.drake = [];
+    redJson.drake = [];
+    pbluedrake = document.getElementById("left_drake").value;
+    preddrake = document.getElementById("right_drake").value;
+    pbluedrake.split("").forEach(item => {
+        blueJson.drake.push({name: tradLetterToDrake(item), x:0,y:0});
+    });
+    preddrake.split("").forEach(item => {
+        redJson.drake.push({name: tradLetterToDrake(item), x:0,y:0});
+    });
+}
+
+function tradLetterToDrake(letter){
+    switch(letter){
+        case "i" :
+            return "FIRE_DRAGON";
+        case "o" :
+            return "WATER_DRAGON";
+        case "a" :
+            return "AIR_DRAGON";
+        case "m" :
+            return "EARTH_DRAGON";
+        case "e" :
+            return "ELDER_DRAGON";
+    }
 }
 
 async function initPlayersTeam(){
@@ -1014,6 +1335,16 @@ async function createArrayPlayer(){
             redSideId.push(player.participantId);
             arrayDamageRed.push(player.stats.totalDamageDealtToChampions);
         }
+    });
+}
+
+async function createArrayPlayer_lcu(){
+    game.teams[0].players.forEach(player => {
+        arrayDamageBlue.push(player.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS);
+    });
+    
+    game.teams[1].players.forEach(player => {
+        arrayDamageRed.push(player.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS);
     });
 }
 

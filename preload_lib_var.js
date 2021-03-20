@@ -24,7 +24,13 @@ const download = require('image-downloader');
 const fetch = require('node-fetch');
 const fs = require("fs");
 const ChartJs = require('node-chartjs-v12');
-
+const LCUConnector = require('lcu-connector');
+const https = require("https");
+const connector = new LCUConnector();
+let base64 = require('base-64');
+const agent = new https.Agent({
+    rejectUnauthorized: false
+})
 //Create script variable
 var settings = {};
 const { exit } = require("process");
@@ -49,6 +55,7 @@ var arrayChartGold = [];
 var arrayLabel = [];
 var arrayDamageBlue = [];
 var arrayDamageRed = [];
+var arrange = null;
 
 //Uhhhh... I don't know how to explain. positionXMesurePerkz and positionYMesurePerkz contains where the object start on the picture (from top-left).
 //positionXMesurePerkz_Save and positionYMesurePerkz_Save contains the same thing, it's just a save to generate the red team.
@@ -67,7 +74,21 @@ var positionYMesurePostGame_Save = {champ : 575, ban :759, team1:181, team2:181,
 const mesureXPostGame = {champ : 72, ban :72, team1:180, team2:180, drake:46,champDamageBlue:51,champDamageRed:51};
 const mesureYPostGame = {champ : 72, ban :72, team1:180, team2:180, drake:46,champDamageBlue:51,champDamageRed:51};
 
+var positionXMesureMVP = {username:417,kda:1809,kp:1809,dmg:1809,vision:1809};
+var positionYMesureMVP = {username:978,kda:340,kp:518,dmg:696,vision:874};
 console.log(settings); 
+
+connector.on('connect', (data) => {
+    arrange = data;
+    console.log(data);
+    url2 = "https://127.0.0.1:"+data.port+"/lol-end-of-game/v1/eog-stats-block";
+    username = data.username;
+    password = data.password;
+    headers = new fetch.Headers();
+    headers.set('Authorization', 'Basic ' + base64.encode(username + ":" + password));
+});
+
+connector.start();
 
 function defaultSettings(){
     if (settings.team1Name == ""){

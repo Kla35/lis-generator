@@ -1,5 +1,8 @@
 const notifier = require('node-notifier');
 button = document.getElementById("button");
+button2 = document.getElementById("button2");
+button3 = document.getElementById("button3");
+buttonMVP = document.getElementById("buttonMVP");
 username_input = document.getElementById("username");
 apikey_input = document.getElementById("apikey");
 matchid_input = document.getElementById("matchid");
@@ -35,6 +38,67 @@ redIconPath_button.addEventListener("click", function(){
     redIconPath_button.classList.add("hidden");
 });
 
+buttonMVP.addEventListener("click",function(){
+    id_mvp = document.getElementById("mvp_nb").value;
+    fetch(url2, {method:'GET',
+        headers: headers, agent
+    })
+    .then(response => response.json())
+    .then(async json => {
+        resetData();
+        retrieveData();
+        const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+        const jsonVersion = await requestVersion.json();
+        version = jsonVersion[0];
+        var jsonChamp = require(path+'/data/'+version+"/en_US/champion.json");
+        createChampJSON(jsonChamp);
+        game = require("./eog-stats-block.json");
+        //game = json;
+        generateImageMVP(id_mvp);
+    })
+});
+
+button3.addEventListener("click",function(){
+    fetch(url2, {method:'GET',
+        headers: headers, agent
+    })
+    .then(response => response.json())
+    .then(json => {
+        console.log(json);
+    })
+        
+});
+button2.addEventListener("click",function(){
+    fetch(url2, {method:'GET',
+        headers: headers, agent
+    })
+    .then(response => response.json())
+    .then(json => {
+        resetData();
+        game = require("./eog-stats-block.json");
+        //game = json;
+        game.teams[0].players.forEach(p => {
+            if(p.teamId == 100){
+                nbplayer_blueside++;
+            }
+        });
+        createArrayPlayer_lcu();
+        console.log(arrayDamageBlue);
+        console.log(arrayDamageRed);
+        createDamageGraphBlue().then(graph1 => {
+            createDamageGraphRed().then(async graph2 => {
+                //createGoldGraph();
+                const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+                const jsonVersion = await requestVersion.json();
+                version = jsonVersion[0];
+                retrieveData();
+                var jsonChamp = require(path+'/data/'+version+"/en_US/champion.json");
+                createChampJSON(jsonChamp);
+                generateImagePostGame(true);
+            })
+        })
+    });
+});
 
 button.addEventListener("click", function(){
     eta_div.classList.remove("hidden");
@@ -170,6 +234,7 @@ button.addEventListener("click", function(){
                 
                 for(let b=0; b < tab_champ.length; b++){
                     await downloadChamp(tab_champ[b]);
+                    await downloadChampLoading(tab_champ[b]);
                     progressBar.style.width = ((b/tab_champ.length)*100) + "%";
                     progressBar.innerHTML = ((b/tab_champ.length)*100).toFixed(2) + "%";
                 }

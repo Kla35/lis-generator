@@ -1,0 +1,4 @@
+=> Avant de lancer, être sur que le dossier est à jour en faisant les runes
+=> Les bans sont à inscrire lors de la phase de bans
+=> Les drakes sont à inscrire pendant la game
+=> Le graphe de gold est à screen à la fin de la game
