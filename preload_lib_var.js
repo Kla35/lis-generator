@@ -46,10 +46,11 @@ var redSideId = [];
 var arrayBlueGold = [];
 var arrayRedGold = [];
 var arrayChartGold = [];
+var arrayChartColor = [];
 var arrayLabel = [];
 var arrayDamageBlue = [];
 var arrayDamageRed = [];
-
+var gradSave = null;
 //Uhhhh... I don't know how to explain. positionXMesurePerkz and positionYMesurePerkz contains where the object start on the picture (from top-left).
 //positionXMesurePerkz_Save and positionYMesurePerkz_Save contains the same thing, it's just a save to generate the red team.
 //mesureXPerkz and mesureYPerkz contains the size of the object. mesureXPerkz is about the length, and mesureYPerkz about the height

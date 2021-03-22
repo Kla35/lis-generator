@@ -750,8 +750,9 @@ async function prepareDrakePixel(blueJson, redJson){
 
 async function createGoldGraph(){
     incrementTimeline = 0;
+    var lengthTime = timeline.frames.length;
+    var positiveDiff = true;
     timeline.frames.forEach(item=>{
-        console.log(item);
         tmp = 0;
         blueSideId.forEach(participantId => {
             tmp = tmp + item.participantFrames[participantId].totalGold;
@@ -762,21 +763,42 @@ async function createGoldGraph(){
                 tmp = tmp + item.participantFrames[participantId].totalGold;
             })
         arrayRedGold[incrementTimeline] = tmp;
-        arrayChartGold[incrementTimeline] = arrayBlueGold[incrementTimeline] - arrayRedGold[incrementTimeline]
+        arrayChartGold[incrementTimeline] = arrayBlueGold[incrementTimeline] - arrayRedGold[incrementTimeline];
+
+        // console.log("time:"+incrementTimeline+"|diff:"+arrayChartGold[incrementTimeline]+"|color:"+arrayChartColor[incrementTimeline]);
         arrayLabel[incrementTimeline] = incrementTimeline.toString();
         incrementTimeline++;
     });
 
     const cjs = new ChartJs(900, 300)
     
-    var gradientFill = cjs.ctx.createLinearGradient(0, 0, 900, 350);
+    gradientFill = cjs.ctx.createLinearGradient(0, 0, 900, 350);
     
-    gradientFill.addColorStop(0, 'blue');
-    gradientFill.addColorStop(23/32, 'red');
-    gradientFill.addColorStop(1, 'blue')
+    // console.log(arrayChartColor);
+    // arrayChartColor.forEach(item=>{
+    //     gradientFill.addColorStop(parseFloat(item.time), item.color);
+    // });
+
+    gradientFill.addColorStop(0, 'red');
+    if(gradSave != null){
+        gradientFill.addColorStop(parseFloat(1-(gradSave/300)-0.000000001), 'red');
+        gradientFill.addColorStop(parseFloat(1-(gradSave/300)), 'blue');
+    }
+    
+    gradientFill.addColorStop(1, 'blue');
+    cjs.ctx.fillStyle = gradientFill;
+    // cjs.ctx.fillRect(10, 10, 200, 100);
     
     const barConfig = {
       type: 'line',
+      plugins: [{
+        afterLayout: chart => {
+          let ctx = chart.chart.ctx;
+          let yAxis = chart.scales["y-axis-0"];
+          let yBottom = yAxis.getPixelForValue(0);   
+          gradSave = yBottom;
+        }
+      }],
       data: {
         labels: arrayLabel,
         datasets: [{
@@ -847,7 +869,89 @@ async function createGoldGraph(){
     
     await cjs.makeChart(barConfig)
     await cjs.drawChart()
-    await cjs.toFile(path+'/graphs/test.bar.png')
+    await cjs.toFile(path+'/graphs/test.bar2.png')
+
+    const cjs2 = new ChartJs(900, 300);
+    gradientFill = cjs2.ctx.createLinearGradient(450, 0, 450, 350);
+    gradientFill.addColorStop(0, 'blue');
+    console.log(parseFloat((gradSave/350)));
+    gradientFill.addColorStop(parseFloat((gradSave/350)-0.000000001), 'blue');
+    gradientFill.addColorStop(parseFloat((gradSave/350)), 'red');
+    gradientFill.addColorStop(1, 'red');
+    cjs2.ctx.fillStyle = gradientFill;
+    // cjs.ctx.fillRect(10, 10, 200, 100);
+    
+    const barConfig2 = {
+      type: 'line',
+      data: {
+        labels: arrayLabel,
+        datasets: [{
+          data: arrayChartGold,
+          backgroundColor: gradientFill,
+          fill:'origin'
+        //   backgroundColor: [
+        //     'rgba(255, 99, 132, 0.2)',
+        //     'rgba(54, 162, 235, 0.2)',
+        //     'rgba(255, 206, 86, 0.2)',
+        //     'rgba(75, 192, 192, 0.2)',
+        //     'rgba(153, 102, 255, 0.2)',
+        //     'rgba(255, 159, 64, 0.2)'
+        // ],
+          //backgroundColor: '#e04f31'
+        }]
+      },
+      options: {
+        title: {
+          fontSize: 26,
+          fontStyle: 'bold',
+          display: false,
+          text: 'Hours Online',
+          // fontColor: '#818E9B',
+          padding: 40
+        },
+        layout: {
+          padding: 20,
+          fontColor: '#FFFFFF'
+        },
+        legend: {
+          display: false
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              fontSize: 22,
+              fontStyle: 'bold',
+              padding: 40
+            },
+            gridLines: {
+              color: '#F0F1F3',
+              zeroLineColor: '#000000',
+              drawBorder: false,
+              tickMarkLength: 20
+            }
+          }],
+          xAxes: [{
+            barThickness: 40,
+            ticks: {
+              fontColor: '#D0D4D8',
+              fontStyle: 'bold',
+              fontSize: 22,
+              display : false
+            },
+            gridLines: {
+              drawOnChartArea: false,
+              color: '#F0F1F3',
+              zeroLineColor: '#F0F1F3',
+              tickMarkLength: 20
+            }
+          }]
+        }
+      }
+    }
+    await cjs2.makeChart(barConfig2)
+    await cjs2.drawChart()
+    await cjs2.toFile(path+'/graphs/test.bar.png')
 }
 
 async function createDamageGraphRed(){
@@ -1053,6 +1157,7 @@ function retrieveData(){
 }
 
 function resetData(){
+    gradSave = null;
     game = null;
     timeline = null;
     tab_runes = [];
@@ -1070,6 +1175,7 @@ function resetData(){
     arrayBlueGold = [];
     arrayRedGold = [];
     arrayChartGold = [];
+    arrayChartColor = [];
     arrayLabel = [];
     arrayDamageBlue = [];
     arrayDamageRed = [];
