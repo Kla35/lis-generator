@@ -6,8 +6,8 @@ const notifier = require('node-notifier');
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 600,
+    width: 1000,
+    height: 780,
     icon: "./logo/logo.png",
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

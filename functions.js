@@ -18,6 +18,13 @@ function generateBanBlue(game){
     return tab;
     
 }
+async function generatePickOrder_lcu(){
+    tab = []
+    jsonRetrieve.pickOrder.forEach(banned => {
+        tab.push(translateChamp(banned));
+    });
+    return tab;
+}
 
 async function generateBanBlue_lcu(){
     tab = [];
@@ -431,6 +438,9 @@ async function generateImagePostGame(bool_from){
     const canvas = createCanvas(width, height)
     const context = canvas.getContext('2d')
     baseline_link = path+'/concept/baseline_postgame.png';
+    if (bool_from){
+        baseline_link = path+'/concept/baseline_postgame_lcu.png';
+    }
     var blueStats = null
     var redStats = null
     if(bool_from){
@@ -439,6 +449,7 @@ async function generateImagePostGame(bool_from){
         jsonRetrieve = requireAgain('./ban_pick-order.json');
         game.banned_array_blue = await generateBanBlue_lcu();
         game.banned_array_red = await generateBanRed_lcu();
+        game["pickOrder"] = await generatePickOrder_lcu();
         console.log(game);
         await checkDrake_lcu(blueStats, redStats);
     } else {
@@ -491,9 +502,22 @@ async function generateImagePostGame(bool_from){
         });
         await context.restore();
         if(bool_from){
-            await loadImage(path+'/enhancement/gold.png').then(async image => {
-                await context.drawImage(image, 1165, 787, 650, 278);
-            });
+            for(let k=0; k<game.pickOrder.length;k++){
+                pickO = game.pickOrder[k];
+                taille = 80;
+                bas = 825;
+                borderName = "blue_border.png"
+                if((k==1) || (k==2) || (k==5) || (k==6) || (k==9)){
+                    bas = bas + taille;
+                    borderName = "red_border.png"
+                }
+                await loadImage(path+'/data/'+version+'/en_US/champion/'+pickO).then(async image => {
+                    await context.drawImage(image, (1065+(taille*k)), bas, taille, taille);
+                });
+                await loadImage(path+'/concept/'+borderName).then(async image => {
+                    await context.drawImage(image, (1065+(taille*k)), bas, taille, taille);
+                });
+            }
         } else {
             await loadImage(path+'/graphs/test.bar.png').then(async image => {
                 await context.drawImage(image, 980, 780, 900, 300);
@@ -953,9 +977,9 @@ async function checkRedStats_lcu(){
     game.teams.forEach(team => {
         if (team.teamId == 200){
             if (team.isWinningTeam == true){
-                json.win =  "LOSE";
+                json.win =  "WIN";
             } else {
-                json.win = "WIN";
+                json.win = "LOSE";
             }
             json.baron = document.getElementById("redBaron").value;
             json.tower =  team.stats.TURRETS_KILLED
