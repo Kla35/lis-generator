@@ -764,6 +764,8 @@ async function generateImagePostGame(bool_from){
         mkdirp(directory_path, { recursive: true });
         fs.writeFileSync(directory_path+'picture_postgame.png', buffer)
         console.log("gen2 +"+ directory_path+'picture_postgame.png');
+        await changeETA("Image generated into : " + directory_path);
+        await changeETAimg("success");
     });
 }
 
@@ -1395,6 +1397,7 @@ async function createArrayPlayer(){
 }
 
 async function createArrayPlayer_lcu(){
+    
     game.teams[0].players.forEach(player => {
         arrayDamageBlue.push(player.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS);
     });

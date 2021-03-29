@@ -75,6 +75,9 @@ button2.addEventListener("click",function(){
     .then(response => response.json())
     .then(json => {
         resetData();
+        eta_div.classList.remove("hidden");
+        changeETAimg("loading");
+        changeETA("Generate postgame LCU image");
         game = require("./eog-stats-block.json");
         // game = json;
         game.teams[0].players.forEach(p => {
