@@ -76,7 +76,7 @@ button2.addEventListener("click",function(){
     .then(json => {
         resetData();
         game = require("./eog-stats-block.json");
-        //game = json;
+        // game = json;
         game.teams[0].players.forEach(p => {
             if(p.teamId == 100){
                 nbplayer_blueside++;

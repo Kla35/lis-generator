@@ -28,7 +28,8 @@
     "nan": "^2.14.0",
     "node-chartjs-v12": "^1.0.2",
     "node-fetch": "^2.6.1",
-    "node-notifier": "^9.0.0"
+    "node-notifier": "^9.0.0",
+    "require-again": "^2.0.0"
   },
   "devDependencies": {
     "electron": "^11.1.1",

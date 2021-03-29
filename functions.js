@@ -21,21 +21,47 @@ function generateBanBlue(game){
 
 async function generateBanBlue_lcu(){
     tab = [];
-    document.getElementById("left_ban").value.split(",").forEach(item => {
-        if(item != ""){
-            tab.push(item+".png");
-        }
-    })
+    // console.log(game.teams);
+    if (document.getElementById("left_ban").value == ""){
+        jsonRetrieve.blueBan.forEach(banned => {
+            tab.push(translateChamp(banned));
+        });
+    } else {
+        document.getElementById("left_ban").value.split(",").forEach(item => {
+            if(item != ""){
+                tab.push(item+".png");
+            }
+        })
+    }
+    
+
+    // document.getElementById("left_ban").value.split(",").forEach(item => {
+    //     if(item != ""){
+    //         tab.push(item+".png");
+    //     }
+    // })
     return tab;
 }
 
 async function generateBanRed_lcu(){
     tab = [];
-    document.getElementById("right_ban").value.split(",").forEach(item => {
-        if(item != ""){
-            tab.push(item+".png");
-        }
-    })
+    if(document.getElementById("right_ban").value == ""){
+        jsonRetrieve.redBan.forEach(banned => {
+            tab.push(translateChamp(banned));
+        });
+    } else {
+        document.getElementById("right_ban").value.split(",").forEach(item => {
+            if(item != ""){
+                tab.push(item+".png");
+            }
+        })  
+    }
+    
+    // document.getElementById("right_ban").value.split(",").forEach(item => {
+    //     if(item != ""){
+    //         tab.push(item+".png");
+    //     }
+    // })
     return tab;
 }
 
@@ -410,6 +436,7 @@ async function generateImagePostGame(bool_from){
     if(bool_from){
         blueStats = await checkBlueStats_lcu();
         redStats = await checkRedStats_lcu();
+        jsonRetrieve = requireAgain('./ban_pick-order.json');
         game.banned_array_blue = await generateBanBlue_lcu();
         game.banned_array_red = await generateBanRed_lcu();
         console.log(game);
@@ -900,11 +927,11 @@ async function checkBlueStats_lcu(){
     game.teams.forEach(team => {
         if (team.teamId == 100){
             if (team.isWinningTeam == true){
-                json.win =  "LOSE";
+                json.win =  "WIN";
             } else {
-                json.win = "WIN";
+                json.win = "LOSE";
             }
-            json.baron = 0 //Pas possiblité de récup la stats
+            json.baron = document.getElementById("blueBaron").value;
             json.tower =  team.stats.TURRETS_KILLED
             json.kill = team.stats.CHAMPIONS_KILLED
             json.death = team.stats.NUM_DEATHS
@@ -930,7 +957,7 @@ async function checkRedStats_lcu(){
             } else {
                 json.win = "WIN";
             }
-            json.baron = 0 //Pas possiblité de récup la stats
+            json.baron = document.getElementById("redBaron").value;
             json.tower =  team.stats.TURRETS_KILLED
             json.kill = team.stats.CHAMPIONS_KILLED
             json.death = team.stats.NUM_DEATHS
@@ -1008,14 +1035,19 @@ async function checkDrake_lcu(blueJson, redJson){
 
 function tradLetterToDrake(letter){
     switch(letter){
+        case "I":
         case "i" :
             return "FIRE_DRAGON";
+        case "O" :
         case "o" :
             return "WATER_DRAGON";
-        case "a" :
+        case "N" :
+        case "N" :
             return "AIR_DRAGON";
+        case "M" :
         case "m" :
             return "EARTH_DRAGON";
+        case "E" :
         case "e" :
             return "ELDER_DRAGON";
     }

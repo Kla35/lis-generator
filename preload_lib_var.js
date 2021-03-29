@@ -28,6 +28,7 @@ const LCUConnector = require('lcu-connector');
 const https = require("https");
 const connector = new LCUConnector();
 let base64 = require('base-64');
+var requireAgain = require('require-again')
 const agent = new https.Agent({
     rejectUnauthorized: false
 })
