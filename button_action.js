@@ -39,7 +39,7 @@ redIconPath_button.addEventListener("click", function(){
 });
 
 buttonMVP.addEventListener("click",function(){
-    id_mvp = document.getElementById("mvp_nb").value;
+    id_mvp = document.querySelector('input[name=team]:checked').value;
     fetch(url2, {method:'GET',
         headers: headers, agent
     })
@@ -78,8 +78,8 @@ button2.addEventListener("click",function(){
         eta_div.classList.remove("hidden");
         changeETAimg("loading");
         changeETA("Generate postgame LCU image");
-        game = require("./eog-stats-block.json");
-        // game = json;
+        // game = require("./eog-stats-block.json");
+        game = json;
         game.teams[0].players.forEach(p => {
             if(p.teamId == 100){
                 nbplayer_blueside++;

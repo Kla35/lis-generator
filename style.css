@@ -2,6 +2,38 @@
     display: none;
 }
 
+.radio_player {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+
+  border: 2px solid #999;
+  transition: 0.2s all linear;
+  margin-right: 5px;
+
+  position: relative;
+  top: 4px;
+}
+.radio_blue:checked {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: blue;
+  border: 6px solid blue;
+}
+
+.radio_red:checked {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: red;
+  border: 6px solid red;
+}
+
 .flex_info {
     display:flex;
     flex-direction: row;

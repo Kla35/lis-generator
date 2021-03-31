@@ -114,6 +114,18 @@ function translateChamp(id_champ){
     return img;
 }
 
+function translateChampMVP(id_champ){
+    const index = tab_champ.findIndex(champ => champ.id == id_champ);
+    let img = '';
+    if (index != -1){
+        img = tab_champ[index].img;
+    } else {
+        img = ''
+    }
+    img = img.substr(0, img.length - 4) + "_0.jpg";
+    return img;
+}
+
 //Translate spell id to spell image path
 function translateSpell(id_spell){
     const index = tab_spell.findIndex(spell => spell.id == id_spell);
@@ -815,7 +827,7 @@ async function generateImageMVP(id){
         await context.fillText(MVPStats.dmg+"%", positionXMesureMVP.dmg, positionYMesureMVP.dmg);
         //VISION
         await context.fillText(MVPStats.vision, positionXMesureMVP.vision, positionYMesureMVP.vision);
-        var champName = await translateChamp(MVPStats.champId);
+        var champName = await translateChampMVP(MVPStats.champId);
         console.log(champName);
         await loadImage(path+'/data/'+version+'/en_US/champion_loading/'+champName).then(async image => {
             await context.drawImage(image, 253, 236, 345, 627);
