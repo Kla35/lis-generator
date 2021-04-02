@@ -14,7 +14,8 @@ ipcRenderer.on('imgpath', function (event,img_path) {
     console.log(img_path);
     directory_path = img_path;
     directorypath_input = document.getElementById("directorypath");
-    directorypath_input.value = directory_path+"\\lis_generator\\";
+    // directorypath_input.value = directory_path+"\\lis_generator\\";
+    directorypath_input.value ="C:/Users/Nathan/Dropbox/";
 });
 
 

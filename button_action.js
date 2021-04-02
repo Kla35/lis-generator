@@ -40,22 +40,21 @@ redIconPath_button.addEventListener("click", function(){
 
 buttonMVP.addEventListener("click",function(){
     id_mvp = document.querySelector('input[name=team]:checked').value;
-    fetch(url2, {method:'GET',
-        headers: headers, agent
-    })
-    .then(response => response.json())
-    .then(async json => {
         resetData();
         retrieveData();
-        const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
-        const jsonVersion = await requestVersion.json();
-        version = jsonVersion[0];
-        var jsonChamp = require(path+'/data/'+version+"/en_US/champion.json");
-        createChampJSON(jsonChamp);
-        game = require("./eog-stats-block.json");
-        //game = json;
-        generateImageMVP(id_mvp);
-    })
+        (async () => {
+	
+            const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+            const jsonVersion = await requestVersion.json();
+            version = jsonVersion[0];
+            var jsonChamp = require(path+'/data/'+version+"/en_US/champion.json");
+            createChampJSON(jsonChamp);
+            game = requireAgain('C:/Users/Nathan/Dropbox/eog-stats-block.json');
+            //game = json;
+            generateImageMVP(id_mvp);
+            
+        })();
+        
 });
 
 button3.addEventListener("click",function(){
@@ -69,17 +68,11 @@ button3.addEventListener("click",function(){
         
 });
 button2.addEventListener("click",function(){
-    fetch(url2, {method:'GET',
-        headers: headers, agent
-    })
-    .then(response => response.json())
-    .then(json => {
         resetData();
         eta_div.classList.remove("hidden");
         changeETAimg("loading");
         changeETA("Generate postgame LCU image");
-        // game = require("./eog-stats-block.json");
-        game = json;
+        game = requireAgain('C:/Users/Nathan/Dropbox/eog-stats-block.json');
         game.teams[0].players.forEach(p => {
             if(p.teamId == 100){
                 nbplayer_blueside++;
@@ -91,6 +84,7 @@ button2.addEventListener("click",function(){
         createDamageGraphBlue().then(graph1 => {
             createDamageGraphRed().then(async graph2 => {
                 //createGoldGraph();
+                (async () => {
                 const requestVersion = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
                 const jsonVersion = await requestVersion.json();
                 version = jsonVersion[0];
@@ -98,9 +92,9 @@ button2.addEventListener("click",function(){
                 var jsonChamp = require(path+'/data/'+version+"/en_US/champion.json");
                 createChampJSON(jsonChamp);
                 generateImagePostGame(true);
+                })();
             })
         })
-    });
 });
 
 button.addEventListener("click", function(){

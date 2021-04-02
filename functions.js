@@ -286,7 +286,7 @@ async function generateImagePerks(){
         context.font = 'bold 40pt Serif'
         context.textBaseline = 'bottom'
         context.textAlign = 'center';
-        context.fillStyle = '#ffffff'
+        context.fillStyle = '#000000'
         await context.fillText(settings.team1Name, 574, 115);
         await context.fillText(settings.team2Name, 1350, 115);
         context.textAlign = 'left';
@@ -458,7 +458,7 @@ async function generateImagePostGame(bool_from){
     if(bool_from){
         blueStats = await checkBlueStats_lcu();
         redStats = await checkRedStats_lcu();
-        jsonRetrieve = requireAgain('./ban_pick-order.json');
+        jsonRetrieve = requireAgain('C:/Users/Nathan/Dropbox/ban_pick-order.json');
         game.banned_array_blue = await generateBanBlue_lcu();
         game.banned_array_red = await generateBanRed_lcu();
         game["pickOrder"] = await generatePickOrder_lcu();
@@ -479,7 +479,7 @@ async function generateImagePostGame(bool_from){
         context.font = 'bold 36pt FjallaOne'
         context.textBaseline = 'bottom'
         context.textAlign = 'center';
-        context.fillStyle = '#ffffff';
+        context.fillStyle = '#000000';
 
         if (bool_from){
             await context.fillText(""+Math.floor(game.gameLength/60)+":"+game.gameLength%60, positionXMesurePostGame.timer, positionYMesurePostGame.timer);
@@ -813,7 +813,7 @@ async function generateImageMVP(id){
         context.font = 'bold 40pt FjallaOne'
         context.textBaseline = 'bottom'
         context.textAlign = 'center';
-        context.fillStyle = '#ffffff';
+        context.fillStyle = '#000000';
 
         //Username
         await context.fillText(MVPStats.username, positionXMesureMVP.username, positionYMesureMVP.username);
