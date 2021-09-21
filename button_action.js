@@ -80,8 +80,10 @@ button.addEventListener("click", function(){
                 const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/spectator/v4/active-games/by-summoner/"+SummonerId+"?api_key="+settings.APIKey);
                 game = await gameAPI.json();
             } else if (settings.matchId != ""){
-                const gameAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/match/v4/matches/"+settings.matchId+"?api_key="+settings.APIKey);
+                const gameAPI = await fetch("https://"+settings.serverMatch+".api.riotgames.com/lol/match/v5/matches/"+settings.matchId+"?api_key="+settings.APIKey);
+                console.log(gameAPI);
                 game = await gameAPI.json();
+                game = game.info;
                 if (game.hasOwnProperty('status')) {
                     if((game.status["status_code"] == 403)||(game.status["status_code"] == 401)){
                         await changeETA("API Key not valid");
@@ -94,8 +96,11 @@ button.addEventListener("click", function(){
                         return
                     }
                 }
-                const timelineAPI = await fetch("https://"+settings.server+".api.riotgames.com/lol/match/v4/timelines/by-match/"+settings.matchId+"?api_key="+settings.APIKey);
+                console.log("https://"+settings.serverMatch+".api.riotgames.com/lol/match/v5/matches/"+settings.matchId+"/timeline?api_key="+settings.APIKey);
+                const timelineAPI = await fetch("https://"+settings.serverMatch+".api.riotgames.com/lol/match/v5/matches/"+settings.matchId+"/timeline?api_key="+settings.APIKey);
+                
                 timeline = await timelineAPI.json();
+                timeline = timeline.info;
                 var folder = await mkdirp(path+'/graphs/', { recursive: true });
                 try {
                     await createArrayPlayer()
@@ -205,18 +210,21 @@ button.addEventListener("click", function(){
                 if(settings.accountName != ""){
                     list_perks = summoner.perks.perkIds;
                 } else if (settings.matchId != ""){
+                    save_perks = summoner.perks.styles.slice();
+                    console.log(save_perks);
                     summoner.perks = {};
-                    summoner.summonerName = game.participantIdentities[summoner.participantId-1].player.summonerName;
-                    tab_str_perks = ["perk0","perk1","perk2","perk3","perk4","perk5"];
-                    tab_str_perks.forEach(item =>{
-                        list_perks.push(summoner.stats[item]);
+                    save_perks.forEach(sty =>{
+                        sty.selections.forEach(item =>{
+                            list_perks.push(item.perk);
+                        })
                     })
+                    
                 }
                 console.log(list_perks);
                 summoner.perks.perkIds = translatePerkz(list_perks);
                 summoner.champImg = translateChamp(summoner.championId);
-                summoner.spell1Img = translateSpell(summoner.spell1Id);
-                summoner.spell2Img = translateSpell(summoner.spell2Id);
+                summoner.spell1Img = translateSpell(summoner.summoner1Id);
+                summoner.spell2Img = translateSpell(summoner.summoner2Id);
                 //console.log(summoner);
                 //console.log(summoner.perks);
             });

@@ -80,5 +80,8 @@ function defaultSettings(){
     if (settings.server == ""){
         settings.server = "euw1";
     }
+    if (settings.serverMatch == ""){
+        settings.serverMatch = "euw1";
+    }
 }
 

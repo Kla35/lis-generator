@@ -387,7 +387,7 @@ async function generateImagePostGame(){
         context.fillStyle = '#ffffff';
 
         
-        await context.fillText(""+Math.floor(game.gameDuration/60)+":"+game.gameDuration%60, positionXMesurePostGame.timer, positionYMesurePostGame.timer);
+        await context.fillText(""+Math.floor(game.gameDuration/60000).toFixed(0))+":"+(Math.floor((game.gameDuration/1000)%60).toFixed(0), positionXMesurePostGame.timer, positionYMesurePostGame.timer);
         await context.fillText(blueStats.win, positionXMesurePostGame.winBlue, positionYMesurePostGame.winBlue);
         await context.fillText(redStats.win, positionXMesurePostGame.winRed, positionYMesurePostGame.winRed);
         await context.fillText(blueStats.tower, positionXMesurePostGame.towerBlue, positionYMesurePostGame.towerBlue);
@@ -479,8 +479,8 @@ async function generateImagePostGame(){
                     console.log("Image of a champ not find : " + summoner.champImg);
                 });
                 context.textAlign = 'left';
-                context.font = 'bold 30pt FjallaOne'
-                await context.fillText((summoner.stats.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageBlue, positionYMesurePostGame.damageBlue);
+                context.font = 'bold 30pt FjallaOne';
+                await context.fillText((summoner.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageBlue, positionYMesurePostGame.damageBlue);
                 context.textAlign = 'center';
                 context.font = 'bold 36pt FjallaOne'
                 positionYMesurePostGame.damageBlue = positionYMesurePostGame.damageBlue + 54;
@@ -499,7 +499,7 @@ async function generateImagePostGame(){
                 });
                 context.textAlign = 'right';
                 context.font = 'bold 30pt FjallaOne'
-                await context.fillText((summoner.stats.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageRed, positionYMesurePostGame.damageRed);
+                await context.fillText((summoner.totalDamageDealtToChampions/1000).toFixed(1) + "k", positionXMesurePostGame.damageRed, positionYMesurePostGame.damageRed);
                 context.textAlign = 'center';
                 context.font = 'bold 36pt FjallaOne'
                 positionYMesurePostGame.damageRed = positionYMesurePostGame.damageRed + 54;
@@ -623,13 +623,13 @@ async function checkBlueStats(){
     json = {}
     game.teams.forEach(team => {
         if (team.teamId == 100){
-            if (team.win == "Fail"){
+            if (team.win == false){
                 json.win =  "LOSE";
             } else {
                 json.win = "WIN";
             }
-            json.baron = team.baronKills
-            json.tower =  team.towerKills
+            json.baron = team.objectives.baron.kills;
+            json.tower =  team.objectives.tower.kills;
         }
     });
     json.kill = 0;
@@ -639,11 +639,11 @@ async function checkBlueStats(){
     json.vision_score = 0;
     game.participants.forEach(play=>{
         if (play.teamId == 100){
-            json.kill = json.kill + play.stats.kills;
-            json.death = json.death + play.stats.deaths;
-            json.assist = json.assist + play.stats.assists;
-            json.total_gold = json.total_gold + play.stats.goldEarned;
-            json.vision_score = json.vision_score + play.stats.visionScore;
+            json.kill = json.kill + play.kills;
+            json.death = json.death + play.deaths;
+            json.assist = json.assist + play.assists;
+            json.total_gold = json.total_gold + play.goldEarned;
+            json.vision_score = json.vision_score + play.visionScore;
         }
     })
     return json;
@@ -653,13 +653,13 @@ async function checkRedStats(){
     json = {}
     game.teams.forEach(team => {
         if (team.teamId == 200){
-            if (team.win == "Fail"){
+            if (team.win == false){
                 json.win =  "LOSE";
             } else {
                 json.win = "WIN";
             }
-            json.baron = team.baronKills
-            json.tower =  team.towerKills
+            json.baron = team.objectives.baron.kills;
+            json.tower =  team.objectives.tower.kills;
         }
     });
     json.kill = 0;
@@ -669,11 +669,11 @@ async function checkRedStats(){
     json.vision_score = 0;
     game.participants.forEach(play=>{
         if (play.teamId == 200){
-            json.kill = json.kill + play.stats.kills;
-            json.death = json.death + play.stats.deaths;
-            json.assist = json.assist + play.stats.assists;
-            json.total_gold = json.total_gold + play.stats.goldEarned;
-            json.vision_score = json.vision_score + play.stats.visionScore;
+            json.kill = json.kill + play.kills;
+            json.death = json.death + play.deaths;
+            json.assist = json.assist + play.assists;
+            json.total_gold = json.total_gold + play.goldEarned;
+            json.vision_score = json.vision_score + play.visionScore;
         }
     });
     return json;
@@ -750,6 +750,7 @@ async function prepareDrakePixel(blueJson, redJson){
 
 async function createGoldGraph(){
     incrementTimeline = 0;
+    console.log(timeline);
     var lengthTime = timeline.frames.length;
     var positiveDiff = true;
     timeline.frames.forEach(item=>{
@@ -955,7 +956,7 @@ async function createGoldGraph(){
 }
 
 async function createDamageGraphRed(){
-    const cjs = new ChartJs(300, 300);
+    const cjs = new ChartJs(300, 330);
 
 const barConfig = {
   type: 'bar',
@@ -989,7 +990,7 @@ const barConfig = {
           beginAtZero: true,
           // max: 12,
           // max,
-          // suggestedMax: max,
+          suggestedMax: biggestDamage,
           // fontColor: '#B7BCC2',
           fontSize: 22,
           display: false,
@@ -1032,7 +1033,7 @@ await cjs.toFile(path+'/graphs/test.bar_red.png')
 }
 
 async function createDamageGraphBlue(){
-    const cjs = new ChartJs(300, 300);
+    const cjs = new ChartJs(300, 330);
 
 const barConfig = {
   type: 'bar',
@@ -1066,7 +1067,7 @@ const barConfig = {
           beginAtZero: true,
           // max: 12,
           // max,
-          // suggestedMax: max,
+          suggestedMax: biggestDamage,
           // fontColor: '#B7BCC2',
           fontSize: 22,
           display: false,
@@ -1110,13 +1111,17 @@ await cjs.toFile(path+'/graphs/test.bar_blue.png')
 
 async function createArrayPlayer(){
     game.participants.forEach(player => {
+        if(player.totalDamageDealtToChampions > biggestDamage){
+            biggestDamage = player.totalDamageDealtToChampions;
+        }
+        console.log(player);
         if (player.teamId == 100){
             blueSideId.push(player.participantId);
-            arrayDamageBlue.push(player.stats.totalDamageDealtToChampions);
+            arrayDamageBlue.push(player.totalDamageDealtToChampions);
         }
         if (player.teamId == 200){
             redSideId.push(player.participantId);
-            arrayDamageRed.push(player.stats.totalDamageDealtToChampions);
+            arrayDamageRed.push(player.totalDamageDealtToChampions);
         }
     });
 }
@@ -1151,6 +1156,13 @@ function retrieveData(){
     settings.APIKey = apikey_input.value;
     settings.matchId = matchid_input.value;
     settings.server = server_select.value;
+    if((settings.server == "euw1") || (settings.server == "eune1")){
+        settings.serverMatch = "europe";
+    } else if((settings.server == "na") || (settings.server == "la1") || (settings.server == "la2") || (settings.server == "br1")){
+        settings.serverMatch = "americas";
+    } else {
+        settings.serverMatch = "asia";
+    }
     settings.team1Name = blueName_input.value;
     settings.team2Name = redName_input.value;
     directory_path = directorypath_input.value;
@@ -1179,6 +1191,9 @@ function resetData(){
     arrayLabel = [];
     arrayDamageBlue = [];
     arrayDamageRed = [];
+    graphDamageBlue = [];
+    graphDamageRed = [];
+    biggestDamage = 0;
 
     positionXMesurePerkz = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 170, team2:1620, ban :231};
     positionXMesurePerkz_Save = {pseudo : 88, champ : 274, spell1:302, spell2:344,perk1:417, perk2: 542, perk3: 655, perk4: 768,perk5:426,perk6:542, team1: 170, team2:1620, ban :231};
